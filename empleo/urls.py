@@ -27,5 +27,6 @@ urlpatterns = [
 
    
     path('reporteVacantes/', views.reporteVacantes),
-  
+    path('verPDF/<int:id>/', views.verPDF, name='verPDF'),
+
 ]

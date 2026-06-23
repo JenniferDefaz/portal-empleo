@@ -53,15 +53,16 @@
                             </td>
                             <td class="text-center">
                                 {% if p.cv_pdf %}
-                                    <a title="Ver CV" class="btn btn-outline-info btn-sm" href="/verPDF/{{ p.id }}/">
-                                        <i class="fas fa-eye"></i> Ver
-                                    </a>
-                                    <a title="Descargar CV" class="btn btn-outline-dark btn-sm" href="{{ p.cv_pdf.url }}" download>
-                                        <i class="fas fa-download"></i> Descargar
-                                    </a>
-                                {% else %}
-                                    <span class="text-muted">Sin CV</span>
-                                {% endif %}
+                                <a title="Ver CV" class="btn btn-outline-info btn-sm" href="/verPDF/{{ p.id }}/" target="_blank">
+    <i class="fas fa-eye"></i> Ver
+</a>
+                                </a>
+                                <a title="Descargar CV" class="btn btn-outline-dark btn-sm" href="{{ p.cv_pdf.url }}" download>
+                                    <i class="fas fa-download"></i> Descargar
+                                </a>
+                            {% else %}
+                                <span class="text-muted">Sin CV</span>
+                            {% endif %}
                             </td>
                             <td class="text-center">
                                 <a href="/editarPostulacion/{{ p.id }}/" class="btn btn-warning btn-sm" title="Editar Postulación">

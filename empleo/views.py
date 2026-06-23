@@ -4,7 +4,10 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .models import Candidato, Postulacion
-# Create your views here.
+from django.http import FileResponse
+import os
+
+
 def inicio(request):
     #Presentando en pantalla el contenido de inicio s
     return render(request, 'inicio.html')
@@ -217,4 +220,5 @@ def reporteVacantes(request):
 
 def verPDF(request, id):
     postulacion = Postulacion.objects.get(id=id)
-    return render(request, 'ver_pdf.html', {'postulacion': postulacion})
+    ruta = postulacion.cv_pdf.path
+    return FileResponse(open(ruta, 'rb'), content_type='application/pdf')
