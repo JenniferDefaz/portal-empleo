@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'empleo',
 ]
 
 MIDDLEWARE = [
@@ -75,7 +77,7 @@ WSGI_APPLICATION = 'portalEmpleosJJ.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': 'bdd_portal_empleos.db',
     }
 }
 
@@ -102,7 +104,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-ec'
 
 TIME_ZONE = 'UTC'
 
@@ -115,3 +117,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS=(os.path.join(BASE_DIR,'portalEmpleosJJ/static'),) # Este va a ser una constante 
+
+#Configuracion para subir y manipular archivos 
+MEDIA_URL='/media/'
+MEDIA_ROOT=(os.path.join(BASE_DIR,'portalEmpleosJJ/media')) # Este va a ser una constante para subir archivos a la carpeta media
+
+LOGIN_URL = '/login/'

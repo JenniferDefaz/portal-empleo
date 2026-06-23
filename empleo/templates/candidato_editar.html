@@ -1,0 +1,120 @@
+{% extends "./plantillaPrin.html" %}
+{% block contenido %}
+<div class="container">
+<div class="row">
+<div class="col-md-3"></div>
+<div class="col-md-6">
+<br>
+<h1><b>Actualizar Candidato</b></h1>
+<hr>
+<form enctype="multipart/form-data" id="form_editar_candidato" action="/actualizarCandidato/{{ candidato.id }}/" method="post">
+    {% csrf_token %}
+
+    <b>Nombre Completo:</b> <br>
+    <input required minlength="3" maxlength="150" placeholder="Ingrese el nombre completo" class="form-control" type="text" name="nombre_completo" value="{{ candidato.nombre_completo }}">
+    <br>
+
+    <b>Fecha de Nacimiento:</b> <br>
+    <input required class="form-control" type="date" name="fecha_nacimiento" value="{{ candidato.fecha_nacimiento|date:'Y-m-d' }}">
+    <br>
+
+    <b>Género:</b> <br>
+    <div class="mt-1">
+        <label>
+            <input type="radio" name="genero" value="M" {% if candidato.genero == 'M' %}checked{% endif %}> Masculino
+        </label>
+        &nbsp;&nbsp;
+        <label>
+            <input type="radio" name="genero" value="F" {% if candidato.genero == 'F' %}checked{% endif %}> Femenino
+        </label>
+        &nbsp;&nbsp;
+        <label>
+            <input type="radio" name="genero" value="O" {% if candidato.genero == 'O' %}checked{% endif %}> Otro
+        </label>
+    </div>
+    <br>
+
+    <b>Nivel de Estudios:</b> <br>
+    <select required class="form-control" name="nivel_estudios">
+        <option value="">-- Seleccione --</option>
+        <option value="GRADO" {% if candidato.nivel_estudios == 'GRADO' %}selected{% endif %}>Grado</option>
+        <option value="MASTER" {% if candidato.nivel_estudios == 'MASTER' %}selected{% endif %}>Máster</option>
+        <option value="DOCTORADO" {% if candidato.nivel_estudios == 'DOCTORADO' %}selected{% endif %}>Doctorado</option>
+    </select>
+    <br>
+
+    <b>Disponibilidad para viajar o mudarse:</b> <br>
+    <label>
+        <input type="checkbox" name="disponible_viajar" {% if candidato.disponible_viajar %}checked{% endif %}> Sí, estoy disponible
+    </label>
+    <br><br>
+
+    <b>Foto de Perfil:</b><br>
+    <input type="file" name="foto" id="foto" class="form-control"
+        {% if candidato.foto %}
+        data-initial-preview="<img src='{{ candidato.foto.url }}' class='file-preview-image'>"
+        data-initial-preview-config='[{"caption": "{{ candidato.foto.name|cut:"empleo/" }}", "showDelete": false}]'
+        {% endif %}
+    >
+    <br>
+    <br>
+
+    <button class="btn btn-success" type="submit"><i class="icon-save"></i> Actualizar</button>
+    <a href="/listadoCandidatos/" class="btn btn-secondary"><i class="icon-cancel"></i> Cancelar</a>
+</form>
+<br>
+</div>
+</div>
+</div>
+
+<script>
+$("#form_editar_candidato").validate({
+    rules: {
+        nombre_completo: {
+            required: true,
+            minlength: 3,
+            maxlength: 150
+        },
+        fecha_nacimiento: {
+            required: true
+        },
+        genero: {
+            required: true
+        },
+        nivel_estudios: {
+            required: true
+        }
+    },
+    messages: {
+        nombre_completo: {
+            required: "Por favor, ingrese el nombre completo",
+            minlength: "El nombre debe tener al menos 3 caracteres",
+            maxlength: "El nombre no puede exceder 150 caracteres"
+        },
+        fecha_nacimiento: {
+            required: "Por favor, ingrese la fecha de nacimiento"
+        },
+        genero: {
+            required: "Por favor, seleccione un género"
+        },
+        nivel_estudios: {
+            required: "Por favor, seleccione el nivel de estudios"
+        }
+    }
+});
+</script>
+
+<script>
+$(document).ready(function() {
+    $("#foto").fileinput({
+        language: "es",
+        allowedFileExtensions: ["jpg", "jpeg", "png"],
+        showCaption: false,
+        dropZoneEnabled: true,
+        showClose: false,
+    });
+    $(".fileinput-upload").hide();
+});
+</script>
+
+{% endblock %}

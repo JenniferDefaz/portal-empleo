@@ -1,0 +1,71 @@
+{% extends "./plantillaPrin.html" %}
+{% block contenido %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3"></div>
+                <div class="col-md-6">
+                    <br>
+                    <h1><b>Nueva Postulación</b></h1>
+                    <hr>
+                    <form enctype="multipart/form-data" id="form_nueva_postulacion" action="/guardarPostulacion/" method="post">
+                        {% csrf_token %}
+                        <b>Vacante a la que aplica:</b> <br>
+                        <select class="form-control" name="vacante">
+                            <option value="">Seleccione...</option>
+                            <option value="DESARROLLADOR">Desarrollador</option>
+                            <option value="DISENADOR">Diseñador</option>
+                        </select>
+                        <br>
+                        <b>Pretensión salarial:</b> <br>
+                        <input placeholder="Ingrese su pretensión salarial" class="form-control" type="number" name="pretension_salarial">
+                        <br>
+                        <b>Currículum Vitae (PDF):</b>
+                        <input type="file" name="cv_pdf" id="cv_pdf">
+                        <br>
+                        <br>
+                        <button class="btn btn-success" type="submit">
+                            <i class="icon-save"></i>
+                            Guardar</button>
+                            <a href="/listadoPostulaciones/" class="btn btn-secondary">
+                            <i class="icon-close"></i>
+                            Cancelar</a>
+                    </form>
+                    <br>
+                </div>
+            </div>
+        </div>
+    <script>
+        $("#form_nueva_postulacion").validate({
+        rules:{
+        vacante: {
+        required: true,
+                        },
+        pretension_salarial: {
+        required: true,
+        number: true,
+        min: 1
+                        }
+                    },
+        messages:{
+        vacante: {
+        required: "Por favor, seleccione la vacante a la que aplica",
+                        },
+        pretension_salarial: {
+        required: "Por favor, ingrese su pretensión salarial",
+        number: "Por favor, ingrese solo números",
+        min: "La pretensión salarial debe ser mayor a 0"
+                        }
+                    }
+        });
+    </script>
+    <script>
+        $("#cv_pdf").fileinput({
+        language: "es",
+        allowedFileExtensions: ["pdf"],
+        showCaption : false,
+        dropZoneEnabled: true,
+        showClose: false, 
+                });
+        $(".fileinput-upload").hide();
+    </script>
+{% endblock %}

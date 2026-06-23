@@ -1,0 +1,102 @@
+{% extends "./plantillaPrin.html" %}
+{% block contenido %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3"></div>
+                <div class="col-md-6">
+                    <br>
+                    <h1><b>Registrar Nuevo Candidato</b></h1>
+                    <hr>
+                    <form enctype="multipart/form-data" id="form_nuevo_candidato" action="/guardarCandidato/" method="post">
+                        {% csrf_token %}
+                        <b>Nombre completo:</b> <br>
+                        <input placeholder="Ingrese su nombre completo" class="form-control" type="text" name="nombre_completo">
+                        <br>
+                        <b>Fecha de nacimiento:</b> <br>
+                        <input class="form-control" type="date" name="fecha_nacimiento">
+                        <br>
+                        <b>Género:</b> <br>
+                        <label><input type="radio" name="genero" value="M"> Masculino</label>
+                        <label class="ms-3"><input type="radio" name="genero" value="F"> Femenino</label>
+                        <label class="ms-3"><input type="radio" name="genero" value="O"> Otro</label>
+                        <br>
+                        <br>
+                        <b>Nivel de estudios:</b> <br>
+                        <select class="form-control" name="nivel_estudios">
+                            <option value="">Seleccione...</option>
+                            <option value="GRADO">Grado</option>
+                            <option value="MASTER">Máster</option>
+                            <option value="DOCTORADO">Doctorado</option>
+                        </select>
+                        <br>
+                        <b>Disponibilidad para viajar o mudarse:</b> <br>
+                        <label><input type="checkbox" name="disponible_viajar"> Sí, estoy disponible</label>
+                        <br>
+                        <br>
+                        <b>Foto de perfil:</b>
+                        <input type="file" name="foto" id="foto">
+                        <br>
+                        <br>
+                        <b>Usuario (para iniciar sesión):</b> <br>
+                        <input placeholder="Ingrese un nombre de usuario" class="form-control" type="text" name="username">
+                        <br>
+                        <b>Correo electrónico:</b> <br>
+                        <input placeholder="Ingrese su correo" class="form-control" type="email" name="email">
+                        <br>
+                        <b>Contraseña:</b> <br>
+                        <input placeholder="Ingrese una contraseña" class="form-control" type="password" name="password">
+                        <br>
+                        <button class="btn btn-success" type="submit">
+                            <i class="icon-save"></i>
+                            Guardar</button>
+                            <a href="/listadoCandidatos/" class="btn btn-secondary">
+                                <i class="icon-close"></i>
+                                Cancelar</a>
+                    </form>
+                <br>
+            </div>
+        </div>
+    </div>
+<script>
+    $("#form_nuevo_candidato").validate({
+    rules:{
+    nombre_completo: {
+    required: true,
+                    },
+    fecha_nacimiento: {
+    required: true,
+                    },
+    genero: {
+    required: true,
+                    },
+    nivel_estudios: {
+    required: true,
+                    }
+                },
+    messages:{
+    nombre_completo: {
+    required: "Por favor, ingrese su nombre completo",
+                    },
+    fecha_nacimiento: {
+    required: "Por favor, seleccione su fecha de nacimiento",
+                    },
+    genero: {
+    required: "Por favor, seleccione su género",
+                    },
+    nivel_estudios: {
+    required: "Por favor, seleccione su nivel de estudios",
+                    }
+                }
+    });
+</script>
+<script>
+    $("#foto").fileinput({
+    language: "es",
+    allowedFileExtensions: ["jpg|jpeg|png"],
+    showCaption : false,
+    dropZoneEnabled: true,
+    showClose: false, 
+            });
+    $(".fileinput-upload").hide();
+</script>
+{% endblock %}
