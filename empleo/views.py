@@ -181,3 +181,36 @@ def eliminarPostulacion(request, id):
     postulacion.delete()
     messages.success(request, 'Postulación eliminada exitosamente')
     return redirect('/listadoPostulaciones/')
+
+
+
+def reporteVacantes(request):
+    from django.db.models import Count, Avg
+
+    # Contar cuántos candidatos se postularon por cada vacante
+    postulaciones_por_vacante = Postulacion.objects.values('vacante').annotate(
+        total=Count('id'),
+        promedio_salario=Avg('pretension_salarial')
+    )
+
+    # Preparar los datos para mostrar en el template
+    reporte = []
+    for item in postulaciones_por_vacante:
+        if item['vacante'] == 'DESARROLLADOR':
+            nombre_vacante = 'Desarrollador'
+        else:
+            nombre_vacante = 'Diseñador'
+
+        reporte.append({
+            'vacante': nombre_vacante,
+            'total': item['total'],
+            'promedio_salario': round(item['promedio_salario'], 2) if item['promedio_salario'] else 0
+        })
+
+    # Total general de postulaciones
+    total_general = Postulacion.objects.count()
+
+    return render(request, 'reporte_vacantes.html', {
+        'reporte': reporte,
+        'total_general': total_general
+    })
