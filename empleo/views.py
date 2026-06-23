@@ -215,3 +215,6 @@ def reporteVacantes(request):
         'total_general': total_general
     })
 
+def verPDF(request, id):
+    postulacion = Postulacion.objects.get(id=id)
+    return render(request, 'ver_pdf.html', {'postulacion': postulacion})
