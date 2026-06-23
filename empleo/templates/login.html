@@ -1,0 +1,56 @@
+{% extends "./plantillaPrin.html" %}
+{% block contenido %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-3"></div>
+            <div class="col-md-6">
+            <br>
+            <h1><b>Iniciar Sesión</b></h1>
+            <hr>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <form id="form_login" action="/procesarLogin/" method="post">
+                {% csrf_token %}
+                <b>Usuario:</b> <br>
+                <input placeholder="Ingrese su usuario" class="form-control" type="text" name="username">
+                <br>
+                <b>Contraseña:</b> <br>
+                <input placeholder="Ingrese su contraseña" class="form-control" type="password" name="password">
+                <br>
+                <br>
+                <button class="btn btn-success" type="submit">
+                    <i class="icon-save"></i>
+                    Ingresar</button>
+                    <a href="/nuevoCandidato/" class="btn btn-secondary">
+                        Registrarme</a>
+            </form>
+            <br>
+        </div>
+    </div>
+</div>
+<script>
+    $("#form_login").validate({
+    rules:{
+    username: {
+    required: true,
+                    },
+    password: {
+    required: true,
+                    }
+                },
+    messages:{
+    username: {
+    required: "Por favor, ingrese su usuario",
+                    },
+    password: {
+    required: "Por favor, ingrese su contraseña",
+                    }
+                }
+    });
+</script>
+{% endblock %}

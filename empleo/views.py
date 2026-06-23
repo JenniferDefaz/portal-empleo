@@ -78,7 +78,12 @@ def guardarCandidato(request):
 
 @login_required
 def listadoCandidatos(request):
-    candidatos = Candidato.objects.all()
+    if request.user.is_staff:
+        # El Reclutador ve a todos los candidatos
+        candidatos = Candidato.objects.all()
+    else:
+        # El Candidato solo ve su propio perfil
+        candidatos = Candidato.objects.filter(usuario=request.user)
     return render(request, 'candidato_listado.html', {'candidatos': candidatos})
 
 @login_required
@@ -138,7 +143,13 @@ def guardarPostulacion(request):
 
 @login_required
 def listadoPostulaciones(request):
-    postulaciones = Postulacion.objects.all()
+    if request.user.is_staff:
+        # El Reclutador ve todas las postulaciones
+        postulaciones = Postulacion.objects.all()
+    else:
+        # El Candidato solo ve sus propias postulaciones
+        candidatoActual = Candidato.objects.get(usuario=request.user)
+        postulaciones = Postulacion.objects.filter(candidato=candidatoActual)
     return render(request, 'postulacion_listado.html', {'postulaciones': postulaciones})
 
 @login_required
