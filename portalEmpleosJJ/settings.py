@@ -122,3 +122,5 @@ STATICFILES_DIRS=(os.path.join(BASE_DIR,'portalEmpleosJJ/static'),) # Este va a 
 #Configuracion para subir y manipular archivos 
 MEDIA_URL='/media/'
 MEDIA_ROOT=(os.path.join(BASE_DIR,'portalEmpleosJJ/media')) # Este va a ser una constante para subir archivos a la carpeta media
+
+LOGIN_URL = '/login/'
