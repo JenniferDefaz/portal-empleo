@@ -150,7 +150,7 @@ def listadoPostulaciones(request):
         # El Candidato solo ve sus propias postulaciones
         candidatoActual = Candidato.objects.get(usuario=request.user)
         postulaciones = Postulacion.objects.filter(candidato=candidatoActual)
-    return render(request, 'listadoPostulaciones', {'postulaciones': postulaciones})
+    return render(request, 'listadoPostulaciones.html', {'postulaciones': postulaciones})
 
 @login_required
 def editarPostulacion(request, id):
