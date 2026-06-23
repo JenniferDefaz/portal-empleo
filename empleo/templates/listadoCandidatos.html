@@ -2,7 +2,7 @@
 {% block contenido %}
 
 {% if user.is_staff %}
-<!-- ===================== VISTA RECLUTADOR: TABLA ===================== -->
+<!-- VISTA RECLUTADOR: TABLA COMPLETA DE TODOS LOS CANDIDATOS -->
 <center>
     <br>
     <h1><b>Candidatos Registrados</b>
@@ -82,7 +82,7 @@
 </script>
 
 {% else %}
-<!-- ===================== VISTA CANDIDATO: TARJETA BONITA ===================== -->
+<!--VISTA CANDIDATO: Con una bonita interfaz y no solo una tabla como el del reclutador-->
 {% for c in candidatos %}
 <div class="container py-5">
     <div class="row justify-content-center">

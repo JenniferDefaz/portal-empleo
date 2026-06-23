@@ -214,3 +214,4 @@ def reporteVacantes(request):
         'reporte': reporte,
         'total_general': total_general
     })
+
