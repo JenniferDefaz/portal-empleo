@@ -20,7 +20,12 @@ class Candidato(models.Model):
 
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
 #OneToOneField(User, ...) → significa "cada Candidato está ligado a exactamente UN usuario del sistema, y viceversa". Así, cuando alguien se registra y hace login, ese usuario tiene su perfil de Candidato asociado.
-    foto = models.FileField(upload_to='empleo',null=True,blank=True)
+    foto = models.FileField(
+        upload_to='empleo',
+        null=True,
+        blank=True,
+        validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'])]
+    )
     nombre_completo = models.CharField(max_length=150)
     fecha_nacimiento = models.DateField()
     genero = models.CharField(max_length=1, choices=GENERO_OPCIONES)
