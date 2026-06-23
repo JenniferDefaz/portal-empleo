@@ -17,10 +17,10 @@
                         </select>
                         <br>
                         <b>Pretensión salarial:</b> <br>
-                        <input placeholder="Ingrese su pretensión salarial" class="form-control" type="number" name="pretension_salarial">
+                        <input placeholder="Ingrese su pretensión salarial" class="form-control" type="number" name="pretension_salarial" min="1" step="1">
                         <br>
                         <b>Currículum Vitae (PDF):</b>
-                        <input type="file" name="cv_pdf" id="cv_pdf">
+                        <input type="file" name="cv_pdf" id="cv_pdf" required>
                         <br>
                         <br>
                         <button class="btn btn-success" type="submit">
@@ -35,37 +35,40 @@
             </div>
         </div>
     <script>
-        $("#form_nueva_postulacion").validate({
-        rules:{
-        vacante: {
-        required: true,
-                        },
-        pretension_salarial: {
-        required: true,
-        number: true,
-        min: 1
-                        }
+        $(document).ready(function() {
+            $("#form_nueva_postulacion").validate({
+                rules: {
+                    vacante: {
+                        required: true
                     },
-        messages:{
-        vacante: {
-        required: "Por favor, seleccione la vacante a la que aplica",
-                        },
-        pretension_salarial: {
-        required: "Por favor, ingrese su pretensión salarial",
-        number: "Por favor, ingrese solo números",
-        min: "La pretensión salarial debe ser mayor a 0"
-                        }
+                    pretension_salarial: {
+                        required: true,
+                        number: true,
+                        min: 1,
+                        max: 999999
                     }
+                },
+                messages: {
+                    vacante: {
+                        required: "Por favor, seleccione la vacante a la que aplica"
+                    },
+                    pretension_salarial: {
+                        required: "Por favor, ingrese su pretensión salarial",
+                        number: "Por favor, ingrese solo números",
+                        min: "La pretensión salarial debe ser mayor a 0",
+                        max: "La pretensión salarial no puede exceder $999,999"
+                    }
+                }
+            });
+
+            $("#cv_pdf").fileinput({
+                language: "es",
+                allowedFileExtensions: ["pdf"],
+                showCaption: false,
+                dropZoneEnabled: true,
+                showClose: false,
+            });
+            $(".fileinput-upload").hide();
         });
-    </script>
-    <script>
-        $("#cv_pdf").fileinput({
-        language: "es",
-        allowedFileExtensions: ["pdf"],
-        showCaption : false,
-        dropZoneEnabled: true,
-        showClose: false, 
-                });
-        $(".fileinput-upload").hide();
     </script>
 {% endblock %}

@@ -13,7 +13,9 @@
                         <input placeholder="Ingrese su nombre completo" class="form-control" type="text" name="nombre_completo">
                         <br>
                         <b>Fecha de nacimiento:</b> <br>
-                        <input class="form-control" type="date" name="fecha_nacimiento">
+                        <input class="form-control" type="date" name="fecha_nacimiento" 
+                               id="fecha_nacimiento"
+                               max="{{ hoy }}">
                         <br>
                         <b>Género:</b> <br>
                         <label><input type="radio" name="genero" value="M"> Masculino</label>
@@ -58,45 +60,87 @@
         </div>
     </div>
 <script>
-    $("#form_nuevo_candidato").validate({
-    rules:{
-    nombre_completo: {
-    required: true,
-                    },
-    fecha_nacimiento: {
-    required: true,
-                    },
-    genero: {
-    required: true,
-                    },
-    nivel_estudios: {
-    required: true,
-                    }
+    $(document).ready(function() {
+        // Método custom: solo letras y espacios (incluye tildes y ñ)
+        $.validator.addMethod("soloLetras", function(value, element) {
+            return this.optional(element) || /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(value);
+        }, "Este campo solo acepta letras y espacios");
+
+        $("#form_nuevo_candidato").validate({
+            rules: {
+                nombre_completo: {
+                    required: true,
+                    minlength: 3,
+                    maxlength: 150,
+                    soloLetras: true
                 },
-    messages:{
-    nombre_completo: {
-    required: "Por favor, ingrese su nombre completo",
-                    },
-    fecha_nacimiento: {
-    required: "Por favor, seleccione su fecha de nacimiento",
-                    },
-    genero: {
-    required: "Por favor, seleccione su género",
-                    },
-    nivel_estudios: {
-    required: "Por favor, seleccione su nivel de estudios",
-                    }
+                fecha_nacimiento: {
+                    required: true,
+                    max: new Date().toISOString().split('T')[0]
+                },
+                genero: {
+                    required: true
+                },
+                nivel_estudios: {
+                    required: true
+                },
+                username: {
+                    required: true,
+                    minlength: 3,
+                    maxlength: 50,
+                    pattern: /^[a-zA-Z0-9_]+$/
+                },
+                email: {
+                    required: true,
+                    email: true
+                },
+                password: {
+                    required: true,
+                    minlength: 6
                 }
+            },
+            messages: {
+                nombre_completo: {
+                    required: "Por favor, ingrese su nombre completo",
+                    minlength: "El nombre debe tener al menos 3 caracteres",
+                    maxlength: "El nombre no puede exceder 150 caracteres",
+                    soloLetras: "El nombre solo puede contener letras y espacios"
+                },
+                fecha_nacimiento: {
+                    required: "Por favor, seleccione su fecha de nacimiento",
+                    max: "La fecha de nacimiento no puede ser una fecha futura"
+                },
+                genero: {
+                    required: "Por favor, seleccione su género"
+                },
+                nivel_estudios: {
+                    required: "Por favor, seleccione su nivel de estudios"
+                },
+                username: {
+                    required: "Por favor, ingrese un nombre de usuario",
+                    minlength: "El usuario debe tener al menos 3 caracteres",
+                    maxlength: "El usuario no puede exceder 50 caracteres",
+                    pattern: "El usuario solo puede contener letras, números y guión bajo ( _ )"
+                },
+                email: {
+                    required: "Por favor, ingrese su correo electrónico",
+                    email: "Ingrese un correo electrónico válido"
+                },
+                password: {
+                    required: "Por favor, ingrese una contraseña",
+                    minlength: "La contraseña debe tener al menos 6 caracteres"
+                }
+            }
+        });
+
+        $("#foto").fileinput({
+            language: "es",
+            allowedFileExtensions: ["jpg", "jpeg", "png"],
+            showCaption: false,
+            dropZoneEnabled: true,
+            showClose: false,
+        });
+        $(".fileinput-upload").hide();
     });
-</script>
-<script>
-    $("#foto").fileinput({
-    language: "es",
-    allowedFileExtensions: ["jpg|jpeg|png"],
-    showCaption : false,
-    dropZoneEnabled: true,
-    showClose: false, 
-            });
-    $(".fileinput-upload").hide();
 </script>
 {% endblock %}

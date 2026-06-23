@@ -15,7 +15,10 @@
     <br>
 
     <b>Fecha de Nacimiento:</b> <br>
-    <input required class="form-control" type="date" name="fecha_nacimiento" value="{{ candidato.fecha_nacimiento|date:'Y-m-d' }}">
+    <input required class="form-control" type="date" name="fecha_nacimiento" 
+           id="fecha_nacimiento"
+           max="{{ hoy }}"
+           value="{{ candidato.fecha_nacimiento|date:'Y-m-d' }}">
     <br>
 
     <b>Género:</b> <br>
@@ -68,44 +71,51 @@
 </div>
 
 <script>
-$("#form_editar_candidato").validate({
-    rules: {
-        nombre_completo: {
-            required: true,
-            minlength: 3,
-            maxlength: 150
-        },
-        fecha_nacimiento: {
-            required: true
-        },
-        genero: {
-            required: true
-        },
-        nivel_estudios: {
-            required: true
-        }
-    },
-    messages: {
-        nombre_completo: {
-            required: "Por favor, ingrese el nombre completo",
-            minlength: "El nombre debe tener al menos 3 caracteres",
-            maxlength: "El nombre no puede exceder 150 caracteres"
-        },
-        fecha_nacimiento: {
-            required: "Por favor, ingrese la fecha de nacimiento"
-        },
-        genero: {
-            required: "Por favor, seleccione un género"
-        },
-        nivel_estudios: {
-            required: "Por favor, seleccione el nivel de estudios"
-        }
-    }
-});
-</script>
-
-<script>
 $(document).ready(function() {
+    // Método custom: solo letras y espacios (incluye tildes y ñ)
+    $.validator.addMethod("soloLetras", function(value, element) {
+        return this.optional(element) || /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(value);
+    }, "Este campo solo acepta letras y espacios");
+
+    $("#form_editar_candidato").validate({
+        rules: {
+            nombre_completo: {
+                required: true,
+                minlength: 3,
+                maxlength: 150,
+                soloLetras: true
+            },
+            fecha_nacimiento: {
+                required: true,
+                max: new Date().toISOString().split('T')[0]
+            },
+            genero: {
+                required: true
+            },
+            nivel_estudios: {
+                required: true
+            }
+        },
+        messages: {
+            nombre_completo: {
+                required: "Por favor, ingrese el nombre completo",
+                minlength: "El nombre debe tener al menos 3 caracteres",
+                maxlength: "El nombre no puede exceder 150 caracteres",
+                soloLetras: "El nombre solo puede contener letras y espacios"
+            },
+            fecha_nacimiento: {
+                required: "Por favor, ingrese la fecha de nacimiento",
+                max: "La fecha de nacimiento no puede ser una fecha futura"
+            },
+            genero: {
+                required: "Por favor, seleccione un género"
+            },
+            nivel_estudios: {
+                required: "Por favor, seleccione el nivel de estudios"
+            }
+        }
+    });
+
     $("#foto").fileinput({
         language: "es",
         allowedFileExtensions: ["jpg", "jpeg", "png"],
