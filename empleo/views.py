@@ -84,7 +84,7 @@ def listadoCandidatos(request):
     else:
         # El Candidato solo ve su propio perfil
         candidatos = Candidato.objects.filter(usuario=request.user)
-    return render(request, 'candidato_listado.html', {'candidatos': candidatos})
+    return render(request, 'listadoCandidatos.html', {'candidatos': candidatos})
 
 @login_required
 def editarCandidato(request, id):
@@ -150,7 +150,7 @@ def listadoPostulaciones(request):
         # El Candidato solo ve sus propias postulaciones
         candidatoActual = Candidato.objects.get(usuario=request.user)
         postulaciones = Postulacion.objects.filter(candidato=candidatoActual)
-    return render(request, 'postulacion_listado.html', {'postulaciones': postulaciones})
+    return render(request, 'listadoPostulaciones', {'postulaciones': postulaciones})
 
 @login_required
 def editarPostulacion(request, id):
