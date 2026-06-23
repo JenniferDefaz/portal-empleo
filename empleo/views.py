@@ -4,3 +4,6 @@ from django.shortcuts import render
 def inicio(request):
     #Presentando en pantalla el contenido de inicio s
     return render(request, 'inicio.html')
+
+def nuevoCandidato(request):
+    return render(request, 'registrar_candidato.html')
