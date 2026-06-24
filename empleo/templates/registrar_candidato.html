@@ -49,11 +49,11 @@
                         <input placeholder="Ingrese una contraseña" class="form-control" type="password" name="password">
                         <br>
                         <button class="btn btn-success" type="submit">
-                            <i class="icon-save"></i>
-                            Guardar</button>
-                            <a href="/listadoCandidatos/" class="btn btn-secondary">
-                                <i class="icon-close"></i>
-                                Cancelar</a>
+                            <i class="fas fa-save me-1"></i> Guardar
+                        </button>
+                        <a href="/listadoCandidatos/" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i> Cancelar
+                        </a>
                     </form>
                 <br>
             </div>
@@ -61,10 +61,24 @@
     </div>
 <script>
     $(document).ready(function() {
-        // Método custom: solo letras y espacios (incluye tildes y ñ)
-        $.validator.addMethod("soloLetras", function(value, element) {
-            return this.optional(element) || /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(value);
-        }, "Este campo solo acepta letras y espacios");
+        // Método: solo letras y espacios (patrón de referencia)
+        jQuery.validator.addMethod("letras", function(value, element) {
+            return this.optional(element) || /^[A-Za-zÁÉÍÑÓÚáéíñóú\s]*$/.test(value);
+        }, "Este campo solo acepta letras");
+
+        // Método: fecha debe ser estrictamente anterior a hoy
+        jQuery.validator.addMethod("fechaPasada", function(value, element) {
+            if (!value) return true;
+            var hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            var fechaIngresada = new Date(value + 'T00:00:00');
+            return fechaIngresada < hoy;
+        }, "La fecha de nacimiento no puede ser hoy ni una fecha futura");
+
+        // Método: tamaño máximo de archivo (patrón de referencia)
+        jQuery.validator.addMethod('filesize', function(value, element, param) {
+            return this.optional(element) || (element.files[0].size <= param);
+        });
 
         $("#form_nuevo_candidato").validate({
             rules: {
@@ -72,11 +86,11 @@
                     required: true,
                     minlength: 3,
                     maxlength: 150,
-                    soloLetras: true
+                    letras: true
                 },
                 fecha_nacimiento: {
                     required: true,
-                    max: new Date().toISOString().split('T')[0]
+                    fechaPasada: true
                 },
                 genero: {
                     required: true
@@ -87,8 +101,7 @@
                 username: {
                     required: true,
                     minlength: 3,
-                    maxlength: 50,
-                    pattern: /^[a-zA-Z0-9_]+$/
+                    maxlength: 50
                 },
                 email: {
                     required: true,
@@ -97,6 +110,9 @@
                 password: {
                     required: true,
                     minlength: 6
+                },
+                foto: {
+                    filesize: 2097152  // 2MB máximo
                 }
             },
             messages: {
@@ -104,11 +120,11 @@
                     required: "Por favor, ingrese su nombre completo",
                     minlength: "El nombre debe tener al menos 3 caracteres",
                     maxlength: "El nombre no puede exceder 150 caracteres",
-                    soloLetras: "El nombre solo puede contener letras y espacios"
+                    letras: "El nombre solo puede contener letras y espacios"
                 },
                 fecha_nacimiento: {
                     required: "Por favor, seleccione su fecha de nacimiento",
-                    max: "La fecha de nacimiento no puede ser una fecha futura"
+                    fechaPasada: "La fecha de nacimiento no puede ser hoy ni una fecha futura"
                 },
                 genero: {
                     required: "Por favor, seleccione su género"
@@ -119,8 +135,7 @@
                 username: {
                     required: "Por favor, ingrese un nombre de usuario",
                     minlength: "El usuario debe tener al menos 3 caracteres",
-                    maxlength: "El usuario no puede exceder 50 caracteres",
-                    pattern: "El usuario solo puede contener letras, números y guión bajo ( _ )"
+                    maxlength: "El usuario no puede exceder 50 caracteres"
                 },
                 email: {
                     required: "Por favor, ingrese su correo electrónico",
@@ -129,6 +144,9 @@
                 password: {
                     required: "Por favor, ingrese una contraseña",
                     minlength: "La contraseña debe tener al menos 6 caracteres"
+                },
+                foto: {
+                    filesize: "La foto no puede superar 2MB"
                 }
             }
         });
