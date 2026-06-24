@@ -3,8 +3,12 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count, Avg
 from .models import Candidato, Postulacion
-# Create your views here.
+from django.http import FileResponse
+import os
+
+
 def inicio(request):
     #Presentando en pantalla el contenido de inicio s
     return render(request, 'inicio.html')
@@ -39,7 +43,14 @@ def cerrarSesion(request):
 
 def nuevoCandidato(request):
     from datetime import date
-    return render(request, 'registrar_candidato.html', {'hoy': date.today().strftime('%Y-%m-%d')})
+    hoy = date.today()
+    # La fecha máxima seleccionable es exactamente 18 años atrás
+    try:
+        max_fecha = hoy.replace(year=hoy.year - 18).strftime('%Y-%m-%d')
+    except ValueError:
+        # Caso bisiesto: 29-feb no existe en año no bisiesto
+        max_fecha = hoy.replace(year=hoy.year - 18, day=28).strftime('%Y-%m-%d')
+    return render(request, 'registrar_candidato.html', {'hoy': max_fecha})
 
 def guardarCandidato(request):
     # Capturando valores via método POST con .get() para evitar KeyError
@@ -59,13 +70,20 @@ def guardarCandidato(request):
     if not fechaNacimientoNuevoCandidato:
         messages.error(request, 'La fecha de nacimiento es obligatoria')
         return redirect('/nuevoCandidato/')
-    # Validar que la fecha no sea futura
+    # Validar fecha de nacimiento
     from datetime import date
     try:
         from datetime import datetime
         fecha_parsed = datetime.strptime(fechaNacimientoNuevoCandidato, '%Y-%m-%d').date()
         if fecha_parsed >= date.today():
             messages.error(request, 'La fecha de nacimiento no puede ser hoy ni una fecha futura')
+            return redirect('/nuevoCandidato/')
+        hoy = date.today()
+        edad = hoy.year - fecha_parsed.year - (
+            (hoy.month, hoy.day) < (fecha_parsed.month, fecha_parsed.day)
+        )
+        if edad < 18:
+            messages.error(request, 'El candidato debe tener al menos 18 años de edad')
             return redirect('/nuevoCandidato/')
     except ValueError:
         messages.error(request, 'La fecha de nacimiento no tiene un formato válido')
@@ -136,9 +154,14 @@ def listadoCandidatos(request):
 def editarCandidato(request, id):
     from datetime import date
     candidato = Candidato.objects.get(id=id)
+    hoy = date.today()
+    try:
+        max_fecha = hoy.replace(year=hoy.year - 18).strftime('%Y-%m-%d')
+    except ValueError:
+        max_fecha = hoy.replace(year=hoy.year - 18, day=28).strftime('%Y-%m-%d')
     return render(request, 'candidato_editar.html', {
         'candidato': candidato,
-        'hoy': date.today().strftime('%Y-%m-%d')
+        'hoy': max_fecha
     })
 
 @login_required
@@ -158,12 +181,19 @@ def actualizarCandidato(request, id):
     if not fechaNacimiento:
         messages.error(request, 'La fecha de nacimiento es obligatoria')
         return redirect('/editarCandidato/' + str(id) + '/')
-    # Validar que la fecha no sea futura
+    # Validar fecha de nacimiento
     from datetime import date, datetime
     try:
         fecha_parsed = datetime.strptime(fechaNacimiento, '%Y-%m-%d').date()
         if fecha_parsed >= date.today():
             messages.error(request, 'La fecha de nacimiento no puede ser hoy ni una fecha futura')
+            return redirect('/editarCandidato/' + str(id) + '/')
+        hoy = date.today()
+        edad = hoy.year - fecha_parsed.year - (
+            (hoy.month, hoy.day) < (fecha_parsed.month, fecha_parsed.day)
+        )
+        if edad < 18:
+            messages.error(request, 'El candidato debe tener al menos 18 años de edad')
             return redirect('/editarCandidato/' + str(id) + '/')
     except ValueError:
         messages.error(request, 'La fecha de nacimiento no tiene un formato válido')
@@ -190,6 +220,13 @@ def actualizarCandidato(request, id):
         if extension not in extensiones_permitidas:
             messages.error(request, 'Solo se permiten imágenes en formato JPG, JPEG o PNG')
             return redirect('/editarCandidato/' + str(id) + '/')
+
+        # Si ya existía una foto anterior, la eliminamos del disco antes de reemplazarla
+        if candidato.foto:
+            ruta_foto_anterior = candidato.foto.path
+            if os.path.isfile(ruta_foto_anterior):
+                os.remove(ruta_foto_anterior)
+
         candidato.foto = fotoEditada
 
     candidato.save()
@@ -198,8 +235,15 @@ def actualizarCandidato(request, id):
 
 @login_required
 def eliminarCandidato(request, id):
-    candidato = Candidato.objects.get(id=id)
-    candidato.delete()
+    candidatoAEliminar = Candidato.objects.get(id=id)
+
+    # Si el candidato tiene una foto asociada, eliminarla del disco
+    if candidatoAEliminar.foto:
+        ruta_foto = candidatoAEliminar.foto.path
+        if os.path.isfile(ruta_foto):
+            os.remove(ruta_foto)
+
+    candidatoAEliminar.delete()
     messages.success(request, 'Candidato eliminado exitosamente')
     return redirect('/listadoCandidatos/')
 
@@ -292,6 +336,13 @@ def actualizarPostulacion(request, id):
         if extension != 'pdf':
             messages.error(request, 'El Currículum Vitae debe estar en formato PDF')
             return redirect('/editarPostulacion/' + str(id) + '/')
+
+        # Si ya existía un CV anterior, lo eliminamos del disco antes de reemplazarlo
+        if postulacion.cv_pdf:
+            ruta_cv_anterior = postulacion.cv_pdf.path
+            if os.path.isfile(ruta_cv_anterior):
+                os.remove(ruta_cv_anterior)
+
         postulacion.cv_pdf = nuevoCv
 
     postulacion.save()
@@ -300,35 +351,31 @@ def actualizarPostulacion(request, id):
 
 @login_required
 def eliminarPostulacion(request, id):
-    postulacion = Postulacion.objects.get(id=id)
-    postulacion.delete()
+    postulacionAEliminar = Postulacion.objects.get(id=id)
+
+    # Si la postulación tiene un CV asociado, eliminarlo del disco
+    if postulacionAEliminar.cv_pdf:
+        ruta_cv = postulacionAEliminar.cv_pdf.path
+        if os.path.isfile(ruta_cv):
+            os.remove(ruta_cv)
+
+    postulacionAEliminar.delete()
     messages.success(request, 'Postulación eliminada exitosamente')
     return redirect('/listadoPostulaciones/')
 
+def verPDF(request, id):
+    postulacion = Postulacion.objects.get(id=id)
+    ruta = postulacion.cv_pdf.path
+    return FileResponse(open(ruta, 'rb'), content_type='application/pdf')
 
-
+@login_required
 def reporteVacantes(request):
-    from django.db.models import Count, Avg
-
-    # Contar cuántos candidatos se postularon por cada vacante
-    postulaciones_por_vacante = Postulacion.objects.values('vacante').annotate(
-        total=Count('id'),
+    # Agrupamos las postulaciones por vacante, contando cuántas hay
+    # y calculando el promedio de pretensión salarial de cada una
+    reporte = Postulacion.objects.values('vacante').annotate(
+        total_postulaciones=Count('id'),
         promedio_salario=Avg('pretension_salarial')
-    )
-
-    # Preparar los datos para mostrar en el template
-    reporte = []
-    for item in postulaciones_por_vacante:
-        if item['vacante'] == 'DESARROLLADOR':
-            nombre_vacante = 'Desarrollador'
-        else:
-            nombre_vacante = 'Diseñador'
-
-        reporte.append({
-            'vacante': nombre_vacante,
-            'total': item['total'],
-            'promedio_salario': round(item['promedio_salario'], 2) if item['promedio_salario'] else 0
-        })
+    ).order_by('-total_postulaciones')
 
     # Total general de postulaciones
     total_general = Postulacion.objects.count()

@@ -33,7 +33,12 @@
     {% endif %}
 
     <b>Currículum Vitae (PDF):</b><br>
-    <input type="file" name="cv_pdf" id="cv_pdf" class="form-control">
+    <input type="file" name="cv_pdf" id="cv_pdf" class="form-control"
+        {% if postulacion.cv_pdf %}
+        data-initial-preview="<iframe src='{{ postulacion.cv_pdf.url }}' width='100%' height='250px' style='border:none;'></iframe>"
+        data-initial-preview-config='[{"caption": "{{ postulacion.cv_pdf.name|cut:"cvs_postulaciones/" }}", "showDelete": false, "width": "400px"}]'
+        {% endif %}
+    >
     <br>
     <br>
 

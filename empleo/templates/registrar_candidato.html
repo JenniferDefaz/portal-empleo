@@ -66,14 +66,21 @@
             return this.optional(element) || /^[A-Za-zÁÉÍÑÓÚáéíñóú\s]*$/.test(value);
         }, "Este campo solo acepta letras");
 
-        // Método: fecha debe ser estrictamente anterior a hoy
+        // Método: fecha debe ser anterior a hoy Y tener al menos 18 años
         jQuery.validator.addMethod("fechaPasada", function(value, element) {
             if (!value) return true;
             var hoy = new Date();
             hoy.setHours(0, 0, 0, 0);
             var fechaIngresada = new Date(value + 'T00:00:00');
-            return fechaIngresada < hoy;
-        }, "La fecha de nacimiento no puede ser hoy ni una fecha futura");
+            if (fechaIngresada >= hoy) return false;
+            // Calcular edad exacta
+            var edad = hoy.getFullYear() - fechaIngresada.getFullYear();
+            var m = hoy.getMonth() - fechaIngresada.getMonth();
+            if (m < 0 || (m === 0 && hoy.getDate() < fechaIngresada.getDate())) {
+                edad--;
+            }
+            return edad >= 18;
+        }, "Debe tener al menos 18 años de edad");
 
         // Método: tamaño máximo de archivo (patrón de referencia)
         jQuery.validator.addMethod('filesize', function(value, element, param) {
@@ -139,7 +146,7 @@
                 },
                 fecha_nacimiento: {
                     required: "Por favor, seleccione su fecha de nacimiento",
-                    fechaPasada: "La fecha de nacimiento no puede ser hoy ni una fecha futura"
+                    fechaPasada: "Debe tener al menos 18 años de edad"
                 },
                 genero: {
                     required: "Por favor, seleccione su género"
