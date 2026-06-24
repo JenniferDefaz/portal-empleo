@@ -12,7 +12,7 @@
 
             <!-- Tarjeta de total general -->
             <div class="alert alert-info text-center">
-                <h4><i class="icon-users"></i> Total de Postulaciones Recibidas: <b>{{ total_general }}</b></h4>
+                <h4><i class="fas fa-users me-2"></i> Total de Postulaciones Recibidas: <b>{{ total_general }}</b></h4>
             </div>
 
             <br>
@@ -31,12 +31,12 @@
                     <tr>
                         <td class="text-center"><b>{{ item.vacante }}</b></td>
                         <td class="text-center">
-                            <span class="badge badge-primary" style="font-size:15px;">
+                            <span class="badge bg-primary" style="font-size:15px;">
                                 {{ item.total }}
                             </span>
                         </td>
                         <td class="text-center">
-                            <span class="badge badge-success" style="font-size:15px;">
+                            <span class="badge bg-success" style="font-size:15px;">
                                 ${{ item.promedio_salario }}
                             </span>
                         </td>
@@ -55,7 +55,7 @@
 
             <br>
             <a href="/listadoPostulaciones/" class="btn btn-secondary">
-                <i class="icon-cancel"></i> Volver
+                <i class="fas fa-arrow-left me-1"></i> Volver
             </a>
             <br><br>
         </div>

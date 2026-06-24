@@ -5,11 +5,11 @@
             <br>
             <h1> <b>Postulaciones Registradas</b>
                 <a href="/nuevaPostulacion/" class="btn btn-info">
-                    <i class="icon-plus-circle"></i> Nueva Postulación
+                    <i class="fas fa-plus-circle me-1"></i> Nueva Postulación
                 </a>
                 {% if user.is_staff %}
                 <a href="/reporteVacantes/" class="btn btn-success">
-                    <i class="icon-chart"></i> Ver Reporte de Mercado
+                    <i class="fas fa-chart-bar me-1"></i> Ver Reporte de Mercado
                 </a>
                 {% endif %}
             </h1>
@@ -42,43 +42,40 @@
                             <td>${{ p.pretension_salarial }}</td>
                             <td class="text-center">
                                 {% if p.estado == 'PRESELECCIONADO' %}
-                                    <span class="badge badge-success">Preseleccionado</span>
+                                    <span class="badge bg-success">Preseleccionado</span>
                                 {% elif p.estado == 'RECHAZADO' %}
-                                    <span class="badge badge-danger">Rechazado</span>
+                                    <span class="badge bg-danger">Rechazado</span>
                                 {% else %}
-                                    <span class="badge badge-warning">Pendiente</span>
+                                    <span class="badge bg-warning text-dark">Pendiente</span>
                                 {% endif %}
                             </td>
                             <td class="text-center">
                                 {% if p.cv_pdf %}
-                                    <a title="Ver CV" class="btn btn-outline-info" href="{{ p.cv_pdf.url }}" target="_blank">
-                                        <i class="icon-file-pdf"></i> Ver PDF
+                                    <a title="Ver CV" class="btn btn-outline-info btn-sm" href="{{ p.cv_pdf.url }}" target="_blank">
+                                        <i class="far fa-file-pdf me-1"></i> Ver PDF
                                     </a>
-                                    <a title="Descargar CV" class="btn btn-outline-dark" href="{{ p.cv_pdf.url }}" download>
-                                        <i class="icon-download"></i>
+                                    <a title="Descargar CV" class="btn btn-outline-dark btn-sm" href="{{ p.cv_pdf.url }}" download>
+                                        <i class="fas fa-download"></i>
                                     </a>
                                 {% else %}
-                                    <a title="No hay CV disponible" class="disabled btn btn-outline-info" href="javascript:void(0)">
-                                        <i class="icon-file-pdf"></i>
-                                    </a>
-                                    <a title="No hay CV disponible" class="disabled btn btn-outline-dark" href="javascript:void(0)">
-                                        <i class="icon-download"></i>
+                                    <a title="No hay CV disponible" class="disabled btn btn-outline-info btn-sm" href="javascript:void(0)">
+                                        <i class="far fa-file-pdf me-1"></i> Sin CV
                                     </a>
                                 {% endif %}
                             </td>
                             <td>
                                 {% if user.is_staff %}
-                                <a href="/editarPostulacion/{{ p.id }}/" class="btn btn-outline-warning" title="Editar / Cambiar Estado">
-                                    <i class="icon-edit"></i>
+                                <a href="/editarPostulacion/{{ p.id }}/" class="btn btn-outline-warning btn-sm" title="Editar / Cambiar Estado">
+                                    <i class="fas fa-edit"></i>
                                 </a>
                                 <a href="/eliminarPostulacion/{{ p.id }}/"
-                                    class="btn btn-outline-danger" title="Eliminar Postulación"
+                                    class="btn btn-outline-danger btn-sm" title="Eliminar Postulación"
                                     onclick="confirmarEliminacion(event, this.href)">
-                                    <i class="icon-trash"></i>
+                                    <i class="fas fa-trash-alt"></i>
                                 </a>
                                 {% else %}
-                                <a href="/editarPostulacion/{{ p.id }}/" class="btn btn-outline-warning" title="Editar Postulación">
-                                    <i class="icon-edit"></i>
+                                <a href="/editarPostulacion/{{ p.id }}/" class="btn btn-outline-warning btn-sm" title="Editar Postulación">
+                                    <i class="fas fa-edit"></i>
                                 </a>
                                 {% endif %}
                             </td>
@@ -91,15 +88,6 @@
 
 <script>
     let table = new DataTable('#tbl_postulaciones');
-</script>
-
-<script>
-function confirmarEliminacion(event, url) {
-    event.preventDefault();
-    if (confirm('¿Estás seguro de que deseas eliminar esta postulación?')) {
-        window.location.href = url;
-    }
-}
 </script>
 
 {% endblock %}
