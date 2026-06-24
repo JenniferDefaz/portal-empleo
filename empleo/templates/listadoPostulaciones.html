@@ -85,10 +85,17 @@
                                 </a>
 =======
                                 {% if not user.is_staff %}
-                                    <!-- Candidato: editar y eliminar su postulación -->
-                                    <a href="/editarPostulacion/{{ p.id }}/" class="btn btn-warning btn-sm" title="Editar Postulación">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
+                                    <!-- Candidato: editar solo si está PENDIENTE -->
+                                    {% if p.estado == 'PENDIENTE' %}
+                                        <a href="/editarPostulacion/{{ p.id }}/" class="btn btn-warning btn-sm" title="Editar Postulación">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    {% else %}
+                                        <button class="btn btn-secondary btn-sm" disabled
+                                            title="No se puede editar: postulación {{ p.estado|lower }}">
+                                            <i class="fas fa-lock"></i>
+                                        </button>
+                                    {% endif %}
                                     <a href="/eliminarPostulacion/{{ p.id }}/"
                                         class="btn btn-danger btn-sm" title="Eliminar Postulación"
                                         onclick="confirmarEliminacion(event, this.href)">

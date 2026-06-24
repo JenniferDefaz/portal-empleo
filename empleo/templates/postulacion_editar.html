@@ -11,21 +11,31 @@
                         {% csrf_token %}
 
                         <b>Vacante a la que aplica:</b> <br>
-                        <select class="form-control" name="vacante" {% if user.is_staff %}style="pointer-events:none; background:#e9ecef;"{% endif %}>
-                            <option value="">Seleccione...</option>
-                            <option value="DESARROLLADOR" {% if postulacion.vacante == 'DESARROLLADOR' %}selected{% endif %}>Desarrollador</option>
-                            <option value="DISENADOR"     {% if postulacion.vacante == 'DISENADOR'     %}selected{% endif %}>Diseñador</option>
-                        </select>
                         {% if user.is_staff %}
+                            <input class="form-control" type="text"
+                                   value="{{ postulacion.get_vacante_display }}"
+                                   readonly style="background:#e9ecef;">
                             <input type="hidden" name="vacante" value="{{ postulacion.vacante }}">
+                        {% else %}
+                            <select class="form-control" name="vacante">
+                                <option value="">Seleccione...</option>
+                                <option value="DESARROLLADOR" {% if postulacion.vacante == 'DESARROLLADOR' %}selected{% endif %}>Desarrollador</option>
+                                <option value="DISENADOR"     {% if postulacion.vacante == 'DISENADOR'     %}selected{% endif %}>Diseñador</option>
+                            </select>
                         {% endif %}
                         <br>
 
                         <b>Pretensión salarial:</b> <br>
-                        <input placeholder="Ingrese su pretensión salarial" class="form-control" type="number"
-                               name="pretension_salarial" min="1" step="1"
-                               value="{{ postulacion.pretension_salarial }}"
-                               {% if user.is_staff %}readonly style="background:#e9ecef;"{% endif %}>
+                        {% if user.is_staff %}
+                            <input class="form-control" type="text"
+                                   value="${{ postulacion.pretension_salarial|floatformat:2 }}"
+                                   readonly style="background:#e9ecef;">
+                            <input type="hidden" name="pretension_salarial" value="{{ postulacion.pretension_salarial }}">
+                        {% else %}
+                            <input placeholder="Ingrese su pretensión salarial" class="form-control"
+                                   type="number" name="pretension_salarial" min="1" step="0.01"
+                                   value="{{ postulacion.pretension_salarial|floatformat:-2 }}">
+                        {% endif %}
                         <br>
 
                         {% if user.is_staff %}
