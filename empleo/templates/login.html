@@ -34,23 +34,29 @@
     </div>
 </div>
 <script>
-    $("#form_login").validate({
-    rules:{
-    username: {
-    required: true,
-                    },
-    password: {
-    required: true,
-                    }
+    $(document).ready(function() {
+        $("#form_login").validate({
+            rules: {
+                username: {
+                    required: true,
+                    minlength: 3
                 },
-    messages:{
-    username: {
-    required: "Por favor, ingrese su usuario",
-                    },
-    password: {
-    required: "Por favor, ingrese su contraseña",
-                    }
+                password: {
+                    required: true,
+                    minlength: 6
                 }
+            },
+            messages: {
+                username: {
+                    required: "Por favor, ingrese su usuario",
+                    minlength: "El usuario debe tener al menos 3 caracteres"
+                },
+                password: {
+                    required: "Por favor, ingrese su contraseña",
+                    minlength: "La contraseña debe tener al menos 6 caracteres"
+                }
+            }
+        });
     });
 </script>
 {% endblock %}

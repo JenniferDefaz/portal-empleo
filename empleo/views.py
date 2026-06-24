@@ -41,23 +41,69 @@ def cerrarSesion(request):
     return redirect('/login/')
 
 def nuevoCandidato(request):
-    return render(request, 'registrar_candidato.html')
+    from datetime import date
+    return render(request, 'registrar_candidato.html', {'hoy': date.today().strftime('%Y-%m-%d')})
 
 def guardarCandidato(request):
-    # Capturando valores via método POST
-    nombreCompletoNuevoCandidato = request.POST["nombre_completo"]
-    fechaNacimientoNuevoCandidato = request.POST["fecha_nacimiento"]
-    generoNuevoCandidato = request.POST["genero"]
-    nivelEstudiosNuevoCandidato = request.POST["nivel_estudios"]
-    # El checkbox solo llega si fue marcado, por eso usamos .get()
+    # Capturando valores via método POST con .get() para evitar KeyError
+    nombreCompletoNuevoCandidato = request.POST.get("nombre_completo", "").strip()
+    fechaNacimientoNuevoCandidato = request.POST.get("fecha_nacimiento", "")
+    generoNuevoCandidato = request.POST.get("genero", "")
+    nivelEstudiosNuevoCandidato = request.POST.get("nivel_estudios", "")
     disponibleViajarNuevoCandidato = True if request.POST.get("disponible_viajar") else False
+    usernameNuevoCandidato = request.POST.get("username", "").strip()
+    passwordNuevoCandidato = request.POST.get("password", "")
+    emailNuevoCandidato = request.POST.get("email", "").strip()
+
+    # Validación de campos obligatorios en el servidor
+    if not nombreCompletoNuevoCandidato:
+        messages.error(request, 'El nombre completo es obligatorio')
+        return redirect('/nuevoCandidato/')
+    if not fechaNacimientoNuevoCandidato:
+        messages.error(request, 'La fecha de nacimiento es obligatoria')
+        return redirect('/nuevoCandidato/')
+    # Validar que la fecha no sea futura
+    from datetime import date
+    try:
+        from datetime import datetime
+        fecha_parsed = datetime.strptime(fechaNacimientoNuevoCandidato, '%Y-%m-%d').date()
+        if fecha_parsed >= date.today():
+            messages.error(request, 'La fecha de nacimiento no puede ser hoy ni una fecha futura')
+            return redirect('/nuevoCandidato/')
+    except ValueError:
+        messages.error(request, 'La fecha de nacimiento no tiene un formato válido')
+        return redirect('/nuevoCandidato/')
+    if not generoNuevoCandidato:
+        messages.error(request, 'Debe seleccionar un género')
+        return redirect('/nuevoCandidato/')
+    if not nivelEstudiosNuevoCandidato:
+        messages.error(request, 'Debe seleccionar el nivel de estudios')
+        return redirect('/nuevoCandidato/')
+    if not usernameNuevoCandidato:
+        messages.error(request, 'El nombre de usuario es obligatorio')
+        return redirect('/nuevoCandidato/')
+    if not passwordNuevoCandidato:
+        messages.error(request, 'La contraseña es obligatoria')
+        return redirect('/nuevoCandidato/')
+    if not emailNuevoCandidato:
+        messages.error(request, 'El correo electrónico es obligatorio')
+        return redirect('/nuevoCandidato/')
+
+    # Validar que el username no esté ya en uso
+    if User.objects.filter(username=usernameNuevoCandidato).exists():
+        messages.error(request, 'El nombre de usuario ya está en uso, elija otro')
+        return redirect('/nuevoCandidato/')
+
     # Capturando el archivo de name="foto"
     fotoNuevoCandidato = request.FILES.get("foto")
 
-    # Datos para crear el usuario de login
-    usernameNuevoCandidato = request.POST["username"]
-    passwordNuevoCandidato = request.POST["password"]
-    emailNuevoCandidato = request.POST["email"]
+    # Validar extensión de la foto si fue subida
+    if fotoNuevoCandidato:
+        extensiones_permitidas = ['jpg', 'jpeg', 'png']
+        extension = fotoNuevoCandidato.name.split('.')[-1].lower()
+        if extension not in extensiones_permitidas:
+            messages.error(request, 'Solo se permiten imágenes en formato JPG, JPEG o PNG')
+            return redirect('/nuevoCandidato/')
 
     # Creando el usuario con contraseña encriptada automáticamente
     nuevoUsuario = User.objects.create_user(
@@ -67,7 +113,7 @@ def guardarCandidato(request):
     )
 
     # Instanciar un objeto "Candidato" conectado a ese usuario
-    nuevoCandidato = Candidato.objects.create(
+    Candidato.objects.create(
         usuario=nuevoUsuario,
         nombre_completo=nombreCompletoNuevoCandidato,
         fecha_nacimiento=fechaNacimientoNuevoCandidato,
@@ -91,22 +137,62 @@ def listadoCandidatos(request):
 
 @login_required
 def editarCandidato(request, id):
+    from datetime import date
     candidato = Candidato.objects.get(id=id)
-    return render(request, 'candidato_editar.html', {'candidato': candidato})
+    return render(request, 'candidato_editar.html', {
+        'candidato': candidato,
+        'hoy': date.today().strftime('%Y-%m-%d')
+    })
 
 @login_required
 def actualizarCandidato(request, id):
     candidato = Candidato.objects.get(id=id)
 
-    candidato.nombre_completo = request.POST["nombre_completo"]
-    candidato.fecha_nacimiento = request.POST["fecha_nacimiento"]
-    candidato.genero = request.POST["genero"]
-    candidato.nivel_estudios = request.POST["nivel_estudios"]
+    # Capturando con .get() para evitar KeyError si algún campo no llega
+    nombreCompleto   = request.POST.get("nombre_completo", "").strip()
+    fechaNacimiento  = request.POST.get("fecha_nacimiento", "")
+    genero           = request.POST.get("genero", "")
+    nivelEstudios    = request.POST.get("nivel_estudios", "")
+
+    # Validación de campos obligatorios en el servidor
+    if not nombreCompleto:
+        messages.error(request, 'El nombre completo es obligatorio')
+        return redirect('/editarCandidato/' + str(id) + '/')
+    if not fechaNacimiento:
+        messages.error(request, 'La fecha de nacimiento es obligatoria')
+        return redirect('/editarCandidato/' + str(id) + '/')
+    # Validar que la fecha no sea futura
+    from datetime import date, datetime
+    try:
+        fecha_parsed = datetime.strptime(fechaNacimiento, '%Y-%m-%d').date()
+        if fecha_parsed >= date.today():
+            messages.error(request, 'La fecha de nacimiento no puede ser hoy ni una fecha futura')
+            return redirect('/editarCandidato/' + str(id) + '/')
+    except ValueError:
+        messages.error(request, 'La fecha de nacimiento no tiene un formato válido')
+        return redirect('/editarCandidato/' + str(id) + '/')
+    if not genero:
+        messages.error(request, 'Debe seleccionar un género')
+        return redirect('/editarCandidato/' + str(id) + '/')
+    if not nivelEstudios:
+        messages.error(request, 'Debe seleccionar el nivel de estudios')
+        return redirect('/editarCandidato/' + str(id) + '/')
+
+    candidato.nombre_completo   = nombreCompleto
+    candidato.fecha_nacimiento  = fechaNacimiento
+    candidato.genero            = genero
+    candidato.nivel_estudios    = nivelEstudios
     candidato.disponible_viajar = True if request.POST.get("disponible_viajar") else False
 
     # Solo se actualiza la foto si el usuario subió una nueva
     fotoEditada = request.FILES.get("foto")
     if fotoEditada:
+        # Validar extensión del archivo en el servidor
+        extensiones_permitidas = ['jpg', 'jpeg', 'png']
+        extension = fotoEditada.name.split('.')[-1].lower()
+        if extension not in extensiones_permitidas:
+            messages.error(request, 'Solo se permiten imágenes en formato JPG, JPEG o PNG')
+            return redirect('/editarCandidato/' + str(id) + '/')
         candidato.foto = fotoEditada
 
     candidato.save()
@@ -127,15 +213,32 @@ def nuevaPostulacion(request):
 
 @login_required
 def guardarPostulacion(request):
-    # Capturando valores via método POST
-    vacanteNuevaPostulacion = request.POST["vacante"]
-    pretensionSalarialNuevaPostulacion = request.POST["pretension_salarial"]
-    # Capturando el archivo de name="cv_pdf"
+    # Capturando con .get() para evitar KeyError
+    vacanteNuevaPostulacion = request.POST.get("vacante", "")
+    pretensionSalarialNuevaPostulacion = request.POST.get("pretension_salarial", "").strip()
     cvPdfNuevaPostulacion = request.FILES.get("cv_pdf")
+
+    # Validación de campos obligatorios en el servidor
+    if not vacanteNuevaPostulacion:
+        messages.error(request, 'Debe seleccionar la vacante a la que aplica')
+        return redirect('/nuevaPostulacion/')
+    if not pretensionSalarialNuevaPostulacion:
+        messages.error(request, 'La pretensión salarial es obligatoria')
+        return redirect('/nuevaPostulacion/')
+    if not cvPdfNuevaPostulacion:
+        messages.error(request, 'Debe adjuntar su Currículum Vitae en formato PDF')
+        return redirect('/nuevaPostulacion/')
+
+    # Validar extensión del CV en el servidor
+    extension = cvPdfNuevaPostulacion.name.split('.')[-1].lower()
+    if extension != 'pdf':
+        messages.error(request, 'El Currículum Vitae debe estar en formato PDF')
+        return redirect('/nuevaPostulacion/')
+
     # El candidato se asigna según el usuario logueado
     candidatoActual = Candidato.objects.get(usuario=request.user)
     # Instanciar un objeto "Postulacion"
-    nuevaPostulacion = Postulacion.objects.create(
+    Postulacion.objects.create(
         candidato=candidatoActual,
         vacante=vacanteNuevaPostulacion,
         pretension_salarial=pretensionSalarialNuevaPostulacion,
@@ -165,14 +268,34 @@ def editarPostulacion(request, id):
 def actualizarPostulacion(request, id):
     postulacion = Postulacion.objects.get(id=id)
 
-    postulacion.vacante = request.POST["vacante"]
-    postulacion.pretension_salarial = request.POST["pretension_salarial"]
-    postulacion.estado = request.POST["estado"]
+    # Capturando con .get() para evitar KeyError
+    vacante            = request.POST.get("vacante", "")
+    pretensionSalarial = request.POST.get("pretension_salarial", "").strip()
+
+    # Validación de campos obligatorios en el servidor
+    if not vacante:
+        messages.error(request, 'Debe seleccionar la vacante')
+        return redirect('/editarPostulacion/' + str(id) + '/')
+    if not pretensionSalarial:
+        messages.error(request, 'La pretensión salarial es obligatoria')
+        return redirect('/editarPostulacion/' + str(id) + '/')
+
+    postulacion.vacante             = vacante
+    postulacion.pretension_salarial = pretensionSalarial
+
+    # Solo el reclutador puede cambiar el estado
+    if request.user.is_staff:
+        postulacion.estado = request.POST.get("estado", postulacion.estado)
 
     # Solo se actualiza el PDF si el usuario subió uno nuevo
-    cvEditado = request.FILES.get("cv_pdf")
-    if cvEditado:
-        postulacion.cv_pdf = cvEditado
+    nuevoCv = request.FILES.get("cv_pdf")
+    if nuevoCv:
+        # Validar extensión del CV en el servidor
+        extension = nuevoCv.name.split('.')[-1].lower()
+        if extension != 'pdf':
+            messages.error(request, 'El Currículum Vitae debe estar en formato PDF')
+            return redirect('/editarPostulacion/' + str(id) + '/')
+        postulacion.cv_pdf = nuevoCv
 
     postulacion.save()
     messages.success(request, 'Postulación actualizada exitosamente')
