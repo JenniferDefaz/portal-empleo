@@ -28,5 +28,6 @@ urlpatterns = [
    
     path('reporteVacantes/', views.reporteVacantes),
     path('verPDF/<int:id>/', views.verPDF, name='verPDF'),
+    path('reporteVacantes/', views.reporteVacantes, name='reporteVacantes'),
 
 ]
