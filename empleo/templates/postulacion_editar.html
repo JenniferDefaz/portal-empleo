@@ -58,103 +58,8 @@
                         <span id="error_cv_pdf" class="text-danger small d-block"></span>
                         <br>
 
-<<<<<<< HEAD
-    <b>Pretensión Salarial:</b>
-    <p class="form-control-plaintext">${{ postulacion.pretension_salarial }}</p>
-
-    <b>Currículum Vitae:</b>
-    <p class="form-control-plaintext">
-        {% if postulacion.cv_pdf %}
-            <a href="/verPDF/{{ postulacion.id }}/" target="_blank" class="btn btn-outline-info btn-sm">
-                <i class="far fa-file-pdf me-1"></i> Ver PDF
-            </a>
-            <a href="{{ postulacion.cv_pdf.url }}" download class="btn btn-outline-dark btn-sm">
-                <i class="fas fa-download me-1"></i> Descargar
-            </a>
-        {% else %}
-            <span class="text-muted">Sin CV adjunto</span>
-        {% endif %}
-    </p>
-
-    <hr>
-    <b>Estado de la Postulación:</b>
-    <select required class="form-control" name="estado">
-        <option value="PENDIENTE"        {% if postulacion.estado == 'PENDIENTE'        %}selected{% endif %}>Pendiente</option>
-        <option value="PRESELECCIONADO"  {% if postulacion.estado == 'PRESELECCIONADO'  %}selected{% endif %}>Preseleccionado</option>
-        <option value="RECHAZADO"        {% if postulacion.estado == 'RECHAZADO'        %}selected{% endif %}>Rechazado</option>
-    </select>
-    <br>
-
-    {% else %}
-    <!-- ================================================ -->
-    <!-- VISTA CANDIDATO: edición completa                -->
-    <!-- ================================================ -->
-
-    <b>Vacante a la que aplica:</b>
-    <select required class="form-control" name="vacante">
-        <option value="">-- Seleccione --</option>
-        <option value="DESARROLLADOR" {% if postulacion.vacante == 'DESARROLLADOR' %}selected{% endif %}>Desarrollador</option>
-        <option value="DISENADOR"     {% if postulacion.vacante == 'DISENADOR'     %}selected{% endif %}>Diseñador</option>
-    </select>
-    <br>
-
-    <b>Pretensión Salarial ($):</b>
-    <input required min="1" max="999999" placeholder="Ingrese su pretensión salarial"
-           class="form-control" type="number" name="pretension_salarial"
-           value="{{ postulacion.pretension_salarial }}">
-    <br>
-
-    <b>Currículum Vitae (PDF):</b><br>
-    <small class="text-muted">Si no selecciona un nuevo archivo, se conserva el actual.</small><br>
-    <input type="file" name="cv_pdf" id="cv_pdf" class="form-control"
-        {% if postulacion.cv_pdf %}
-        data-initial-preview="<iframe src='{{ postulacion.cv_pdf.url }}' width='100%' height='200px' style='border:none;'></iframe>"
-        data-initial-preview-config='[{"caption": "{{ postulacion.cv_pdf.name|cut:"cvs_postulaciones/" }}", "showDelete": false, "width": "400px"}]'
-        {% endif %}
-    >
-    <span id="error_cv_pdf" class="text-danger small d-block"></span>
-<<<<<<< HEAD
-    <br>
-    <br>
-
-    <button class="btn btn-success" type="submit"><i class="fas fa-save me-1"></i> Actualizar</button>
-    <a href="/listadoPostulaciones/" class="btn btn-secondary"><i class="fas fa-times me-1"></i> Cancelar</a>
-=======
-    <br>
-
-    {% endif %}
-
-    <button class="btn btn-success" type="submit">
-        <i class="fas fa-save me-1"></i> {% if user.is_staff %}Guardar Estado{% else %}Actualizar{% endif %}
-    </button>
-    <a href="/listadoPostulaciones/" class="btn btn-secondary">
-        <i class="fas fa-times me-1"></i> Cancelar
-    </a>
->>>>>>> 59c8842 (corregir acciones en postulaciones y restringir edicion segun rol)
-</form>
-<br>
-</div>
-</div>
-</div>
-
-<script>
-$(document).ready(function() {
-<<<<<<< HEAD
-    // Método: solo números (patrón de referencia)
-    jQuery.validator.addMethod("numbersonly", function(value, element) {
-        return this.optional(element) || /[0-9]/.test(value);
-    }, "Este campo solo acepta números");
-
-    // Método: valor positivo (patrón de referencia)
-    jQuery.validator.addMethod('positivo', function(value, element, param) {
-        return value >= 0;
-    }, "El valor ingresado no puede ser negativo");
-
-    // Método: tamaño máximo de archivo (patrón de referencia)
-=======
-=======
                         <button class="btn btn-success" type="submit">
-                            <i class="fas fa-save me-1"></i> Guardar
+                            <i class="fas fa-save me-1"></i> {% if user.is_staff %}Guardar Estado{% else %}Actualizar{% endif %}
                         </button>
                         <a href="/listadoPostulaciones/" class="btn btn-secondary">
                             <i class="fas fa-times me-1"></i> Cancelar
@@ -167,87 +72,17 @@ $(document).ready(function() {
 
 <script>
     $(document).ready(function() {
->>>>>>> 9336c3e (validacion de edad minima 18 anios en registro y edicion de candidato)
 
         // Método: tamaño máximo de archivo
         jQuery.validator.addMethod('filesize', function(value, element, param) {
             return this.optional(element) || (element.files[0].size <= param);
         });
 
-<<<<<<< HEAD
-    // Método: solo números
-    jQuery.validator.addMethod("numbersonly", function(value, element) {
-        return this.optional(element) || /^[0-9]+(\.[0-9]+)?$/.test(value);
-    }, "Este campo solo acepta números");
+        // Método: solo números
+        jQuery.validator.addMethod("numbersonly", function(value, element) {
+            return this.optional(element) || /^[0-9]+(\.[0-9]+)?$/.test(value);
+        }, "Este campo solo acepta números");
 
-    // Método: tamaño máximo de archivo
->>>>>>> 59c8842 (corregir acciones en postulaciones y restringir edicion segun rol)
-    jQuery.validator.addMethod('filesize', function(value, element, param) {
-        return this.optional(element) || (element.files[0].size <= param);
-    });
-
-    $("#form_editar_postulacion").validate({
-        errorElement: "span",
-        errorClass: "text-danger small",
-        highlight: function(element) {
-            $(element).addClass("is-invalid").removeClass("is-valid");
-        },
-        unhighlight: function(element) {
-            $(element).removeClass("is-invalid");
-        },
-        errorPlacement: function(error, element) {
-            if (element.attr("name") === "cv_pdf") {
-                $("#error_cv_pdf").html(error);
-            } else {
-                error.insertAfter(element);
-            }
-        },
-        rules: {
-            vacante: {
-                required: true
-            },
-            pretension_salarial: {
-                required: true,
-                numbersonly: true,
-<<<<<<< HEAD
-                positivo: true,
-=======
->>>>>>> 59c8842 (corregir acciones en postulaciones y restringir edicion segun rol)
-                min: 1,
-                max: 999999
-            },
-            cv_pdf: {
-<<<<<<< HEAD
-                filesize: 5242880  // 5MB máximo
-=======
-                filesize: 5242880  // 5 MB máximo
->>>>>>> 59c8842 (corregir acciones en postulaciones y restringir edicion segun rol)
-            }
-        },
-        messages: {
-            vacante: {
-                required: "Por favor, seleccione la vacante"
-            },
-            pretension_salarial: {
-                required: "Por favor, ingrese su pretensión salarial",
-                numbersonly: "Este campo solo acepta números",
-<<<<<<< HEAD
-                positivo: "El valor no puede ser negativo",
-=======
->>>>>>> 59c8842 (corregir acciones en postulaciones y restringir edicion segun rol)
-                min: "El salario debe ser mayor a 0",
-                max: "El salario no puede exceder $999,999"
-            },
-            cv_pdf: {
-<<<<<<< HEAD
-                filesize: "El CV no puede superar 5MB"
-=======
-                filesize: "El CV no puede superar 5 MB"
->>>>>>> 59c8842 (corregir acciones en postulaciones y restringir edicion segun rol)
-            }
-        }
-    });
-=======
         $("#form_editar_postulacion").validate({
             errorElement: "span",
             errorClass: "text-danger small",
@@ -293,7 +128,6 @@ $(document).ready(function() {
                 {% endif %}
             }
         });
->>>>>>> 9336c3e (validacion de edad minima 18 anios en registro y edicion de candidato)
 
         $("#cv_pdf").fileinput({
             language: "es",
@@ -306,50 +140,6 @@ $(document).ready(function() {
         });
         $(".fileinput-upload").hide();
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    // Cuando fileinput detecta error (extensión o tamaño), disparar revalidación
-    $("#cv_pdf").on("fileinvalid fileerror", function() {
-        $("#form_editar_postulacion").validate().element("#cv_pdf");
-    });
-    // Cuando se selecciona un archivo válido, limpiar el error
-    $("#cv_pdf").on("fileloaded", function() {
-        $("#error_cv_pdf").empty();
-    });
-=======
-    // Error del fileinput visible en el span
-    $("#cv_pdf").on("fileinvalid fileerror", function() {
-        $("#form_editar_postulacion").validate().element("#cv_pdf");
-    });
-    $("#cv_pdf").on("fileloaded", function() {
-        $("#error_cv_pdf").empty();
-    });
-
-    {% else %}
-    // ---------------------------------------------------
-    // Validación solo para el reclutador (solo estado)
-    // ---------------------------------------------------
-    $("#form_editar_postulacion").validate({
-        errorElement: "span",
-        errorClass: "text-danger small",
-        highlight: function(element) {
-            $(element).addClass("is-invalid").removeClass("is-valid");
-        },
-        unhighlight: function(element) {
-            $(element).removeClass("is-invalid");
-        },
-        rules: {
-            estado: { required: true }
-        },
-        messages: {
-            estado: { required: "Debe seleccionar un estado" }
-        }
-    });
-    {% endif %}
-
->>>>>>> 59c8842 (corregir acciones en postulaciones y restringir edicion segun rol)
-});
-=======
         {% if not user.is_staff %}
         $("#cv_pdf").on("fileinvalid fileerror", function() {
             $("#form_editar_postulacion").validate().element("#cv_pdf");
@@ -359,7 +149,6 @@ $(document).ready(function() {
         });
         {% endif %}
     });
->>>>>>> 9336c3e (validacion de edad minima 18 anios en registro y edicion de candidato)
 </script>
 
 {% endblock %}

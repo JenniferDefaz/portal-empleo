@@ -66,26 +66,7 @@
                                 {% endif %}
                             </td>
                             <td class="text-center">
-<<<<<<< HEAD
-                                <a href="/editarPostulacion/{{ p.id }}/" class="btn btn-warning btn-sm" title="Editar Postulación">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                {% if user.is_staff %}
-                                <a href="/editarPostulacion/{{ p.id }}/" class="btn btn-outline-warning btn-sm" title="Editar / Cambiar Estado">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="/eliminarPostulacion/{{ p.id }}/"
-                                    class="btn btn-outline-danger btn-sm" title="Eliminar Postulación"
-                                    onclick="confirmarEliminacion(event, this.href)">
-                                    <i class="fas fa-trash-alt"></i>
-                                </a>
-                                {% else %}
-                                <a href="/editarPostulacion/{{ p.id }}/" class="btn btn-outline-warning btn-sm" title="Editar Postulación">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-=======
                                 {% if not user.is_staff %}
-                                    <!-- Candidato: editar solo si está PENDIENTE -->
                                     {% if p.estado == 'PENDIENTE' %}
                                         <a href="/editarPostulacion/{{ p.id }}/" class="btn btn-warning btn-sm" title="Editar Postulación">
                                             <i class="fas fa-edit"></i>
@@ -102,7 +83,6 @@
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 {% else %}
-                                    <!-- Reclutador: cambiar estado y eliminar -->
                                     <a href="/editarPostulacion/{{ p.id }}/" class="btn btn-warning btn-sm" title="Cambiar Estado">
                                         <i class="fas fa-edit"></i>
                                     </a>
@@ -111,7 +91,6 @@
                                         onclick="confirmarEliminacion(event, this.href)">
                                         <i class="fas fa-trash"></i>
                                     </a>
->>>>>>> 59c8842 (corregir acciones en postulaciones y restringir edicion segun rol)
                                 {% endif %}
                             </td>
                         </tr>
