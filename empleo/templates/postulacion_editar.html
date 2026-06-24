@@ -42,8 +42,8 @@
     <br>
     <br>
 
-    <button class="btn btn-success" type="submit"><i class="icon-save"></i> Actualizar</button>
-    <a href="/listadoPostulaciones/" class="btn btn-secondary"><i class="icon-cancel"></i> Cancelar</a>
+    <button class="btn btn-success" type="submit"><i class="fas fa-save me-1"></i> Actualizar</button>
+    <a href="/listadoPostulaciones/" class="btn btn-secondary"><i class="fas fa-times me-1"></i> Cancelar</a>
 </form>
 <br>
 </div>
@@ -52,6 +52,21 @@
 
 <script>
 $(document).ready(function() {
+    // Método: solo números (patrón de referencia)
+    jQuery.validator.addMethod("numbersonly", function(value, element) {
+        return this.optional(element) || /[0-9]/.test(value);
+    }, "Este campo solo acepta números");
+
+    // Método: valor positivo (patrón de referencia)
+    jQuery.validator.addMethod('positivo', function(value, element, param) {
+        return value >= 0;
+    }, "El valor ingresado no puede ser negativo");
+
+    // Método: tamaño máximo de archivo (patrón de referencia)
+    jQuery.validator.addMethod('filesize', function(value, element, param) {
+        return this.optional(element) || (element.files[0].size <= param);
+    });
+
     $("#form_editar_postulacion").validate({
         rules: {
             vacante: {
@@ -59,9 +74,13 @@ $(document).ready(function() {
             },
             pretension_salarial: {
                 required: true,
-                number: true,
+                numbersonly: true,
+                positivo: true,
                 min: 1,
                 max: 999999
+            },
+            cv_pdf: {
+                filesize: 5242880  // 5MB máximo
             }
         },
         messages: {
@@ -70,9 +89,13 @@ $(document).ready(function() {
             },
             pretension_salarial: {
                 required: "Por favor, ingrese su pretensión salarial",
+                numbersonly: "Este campo solo acepta números",
+                positivo: "El valor no puede ser negativo",
                 min: "El salario debe ser mayor a 0",
-                max: "El salario no puede exceder $999,999",
-                number: "Por favor, ingrese solo números"
+                max: "El salario no puede exceder $999,999"
+            },
+            cv_pdf: {
+                filesize: "El CV no puede superar 5MB"
             }
         }
     });
