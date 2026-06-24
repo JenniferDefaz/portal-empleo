@@ -109,25 +109,25 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <div class="navbar-nav ms-auto p-4 p-lg-0">
-                    <a href="/" class="nav-item nav-link active">Inicio</a>
+                    <a href="/" class="nav-item nav-link {% if request.path == '/' %}active{% endif %}">Inicio</a>
 
                     {% if user.is_authenticated %}
                         {% if user.is_staff %}
                             <!-- Menú solo para Reclutador -->
-                            <a href="/listadoCandidatos/" class="nav-item nav-link">Candidatos</a>
-                            <a href="/listadoPostulaciones/" class="nav-item nav-link">Postulaciones</a>
-                            <a href="/reporteVacantes/" class="nav-item nav-link">Reporte</a>
+                            <a href="/listadoCandidatos/" class="nav-item nav-link {% if '/listadoCandidatos/' in request.path or '/editarCandidato/' in request.path %}active{% endif %}">Candidatos</a>
+                            <a href="/listadoPostulaciones/" class="nav-item nav-link {% if '/listadoPostulaciones/' in request.path or '/editarPostulacion/' in request.path or '/nuevaPostulacion/' in request.path %}active{% endif %}">Postulaciones</a>
+                            <a href="/reporteVacantes/" class="nav-item nav-link {% if '/reporteVacantes/' in request.path %}active{% endif %}">Reporte</a>
                         {% else %}
                             <!-- Menú solo para Candidato -->
-                            <a href="/listadoCandidatos/" class="nav-item nav-link">Mi Perfil</a>
-                            <a href="/listadoPostulaciones/" class="nav-item nav-link">Mis Postulaciones</a>
+                            <a href="/listadoCandidatos/" class="nav-item nav-link {% if '/listadoCandidatos/' in request.path or '/editarCandidato/' in request.path %}active{% endif %}">Mi Perfil</a>
+                            <a href="/listadoPostulaciones/" class="nav-item nav-link {% if '/listadoPostulaciones/' in request.path or '/editarPostulacion/' in request.path or '/nuevaPostulacion/' in request.path %}active{% endif %}">Mis Postulaciones</a>
                         {% endif %}
                         <a href="/cerrarSesion/" class="btn btn-danger rounded-0 py-4 px-lg-4 d-none d-lg-block">
                             <i class="fa fa-sign-out-alt ms-1"></i> Cerrar Sesión ({{ user.username }})
                         </a>
                     {% else %}
                         <!-- Menú para visitantes sin sesión -->
-                        <a href="/login/" class="nav-item nav-link">Iniciar Sesión</a>
+                        <a href="/login/" class="nav-item nav-link {% if '/login/' in request.path %}active{% endif %}">Iniciar Sesión</a>
                         <a href="/nuevoCandidato/" class="btn btn-primary rounded-0 py-4 px-lg-5 d-none d-lg-block">
                             Registrarse <i class="fa fa-arrow-right ms-3"></i>
                         </a>
