@@ -36,7 +36,7 @@ def procesarLogin(request):
 def cerrarSesion(request):
     logout(request)
     messages.success(request, 'Sesión cerrada exitosamente')
-    return redirect('/login/')
+    return redirect('/')
 
 def nuevoCandidato(request):
     return render(request, 'registrar_candidato.html')
