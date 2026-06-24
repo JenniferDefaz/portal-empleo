@@ -19,6 +19,7 @@
            id="fecha_nacimiento"
            max="{{ hoy }}"
            value="{{ candidato.fecha_nacimiento|date:'Y-m-d' }}">
+    <span id="error_fecha_nacimiento" class="text-danger small"></span>
     <br>
 
     <b>Género:</b> <br>
@@ -109,6 +110,8 @@ $(document).ready(function() {
         errorPlacement: function(error, element) {
             if (element.attr("type") === "radio" || element.attr("type") === "checkbox") {
                 error.insertAfter(element.closest("div, label").last());
+            } else if (element.attr("name") === "fecha_nacimiento") {
+                $("#error_fecha_nacimiento").html(error);
             } else {
                 error.insertAfter(element);
             }
