@@ -33,12 +33,7 @@
     {% endif %}
 
     <b>Currículum Vitae (PDF):</b><br>
-    <input type="file" name="cv_pdf" id="cv_pdf" class="form-control"
-        {% if postulacion.cv_pdf %}
-        data-initial-preview="<div class='file-preview-other'><i class='icon-file-pdf' style='font-size:50px;color:red;'></i></div>"
-        data-initial-preview-config='[{"caption": "{{ postulacion.cv_pdf.name|cut:"cvs_postulaciones/" }}", "showDelete": false}]'
-        {% endif %}
-    >
+    <input type="file" name="cv_pdf" id="cv_pdf" class="form-control">
     <br>
     <br>
 
@@ -68,6 +63,17 @@ $(document).ready(function() {
     });
 
     $("#form_editar_postulacion").validate({
+        errorElement: "span",
+        errorClass: "text-danger small",
+        highlight: function(element) {
+            $(element).addClass("is-invalid").removeClass("is-valid");
+        },
+        unhighlight: function(element) {
+            $(element).removeClass("is-invalid");
+        },
+        errorPlacement: function(error, element) {
+            error.insertAfter(element);
+        },
         rules: {
             vacante: {
                 required: true

@@ -37,6 +37,17 @@
 <script>
     $(document).ready(function() {
         $("#form_login").validate({
+            errorElement: "span",
+            errorClass: "text-danger small",
+            highlight: function(element) {
+                $(element).addClass("is-invalid").removeClass("is-valid");
+            },
+            unhighlight: function(element) {
+                $(element).removeClass("is-invalid");
+            },
+            errorPlacement: function(error, element) {
+                error.insertAfter(element);
+            },
             rules: {
                 username: {
                     required: true,

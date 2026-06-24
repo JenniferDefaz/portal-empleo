@@ -92,6 +92,21 @@ $(document).ready(function() {
     });
 
     $("#form_editar_candidato").validate({
+        errorElement: "span",
+        errorClass: "text-danger small",
+        highlight: function(element) {
+            $(element).addClass("is-invalid").removeClass("is-valid");
+        },
+        unhighlight: function(element) {
+            $(element).removeClass("is-invalid");
+        },
+        errorPlacement: function(error, element) {
+            if (element.attr("type") === "radio" || element.attr("type") === "checkbox") {
+                error.insertAfter(element.closest("div, label").last());
+            } else {
+                error.insertAfter(element);
+            }
+        },
         rules: {
             nombre_completo: {
                 required: true,
