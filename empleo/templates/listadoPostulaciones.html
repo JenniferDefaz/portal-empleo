@@ -85,14 +85,19 @@
                                 </a>
 =======
                                 {% if not user.is_staff %}
-                                    <!-- Candidato: puede editar su propia postulación -->
+                                    <!-- Candidato: editar y eliminar su postulación -->
                                     <a href="/editarPostulacion/{{ p.id }}/" class="btn btn-warning btn-sm" title="Editar Postulación">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                                    <a href="/eliminarPostulacion/{{ p.id }}/"
+                                        class="btn btn-danger btn-sm" title="Eliminar Postulación"
+                                        onclick="confirmarEliminacion(event, this.href)">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
                                 {% else %}
-                                    <!-- Reclutador: solo cambia el estado y puede eliminar -->
-                                    <a href="/editarPostulacion/{{ p.id }}/" class="btn btn-outline-primary btn-sm" title="Cambiar Estado">
-                                        <i class="fas fa-tasks"></i>
+                                    <!-- Reclutador: cambiar estado y eliminar -->
+                                    <a href="/editarPostulacion/{{ p.id }}/" class="btn btn-warning btn-sm" title="Cambiar Estado">
+                                        <i class="fas fa-edit"></i>
                                     </a>
                                     <a href="/eliminarPostulacion/{{ p.id }}/"
                                         class="btn btn-danger btn-sm" title="Eliminar Postulación"

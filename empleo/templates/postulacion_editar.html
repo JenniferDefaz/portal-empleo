@@ -1,29 +1,54 @@
 {% extends "./plantillaPrin.html" %}
 {% block contenido %}
-<div class="container">
-<div class="row">
-<div class="col-md-3"></div>
-<div class="col-md-6">
-<br>
-<h1><b>{% if user.is_staff %}Cambiar Estado de Postulación{% else %}Actualizar Postulación{% endif %}</b></h1>
-<hr>
-<form enctype="multipart/form-data" id="form_editar_postulacion" action="/actualizarPostulacion/{{ postulacion.id }}/" method="post">
-    {% csrf_token %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3"></div>
+                <div class="col-md-6">
+                    <br>
+                    <h1><b>Actualizar Postulación</b></h1>
+                    <hr>
+                    <form enctype="multipart/form-data" id="form_editar_postulacion" action="/actualizarPostulacion/{{ postulacion.id }}/" method="post">
+                        {% csrf_token %}
 
-    {% if user.is_staff %}
-    <!-- ================================================ -->
-    <!-- VISTA RECLUTADOR: solo lectura + cambio de estado -->
-    <!-- ================================================ -->
+                        <b>Vacante a la que aplica:</b> <br>
+                        <select class="form-control" name="vacante" {% if user.is_staff %}style="pointer-events:none; background:#e9ecef;"{% endif %}>
+                            <option value="">Seleccione...</option>
+                            <option value="DESARROLLADOR" {% if postulacion.vacante == 'DESARROLLADOR' %}selected{% endif %}>Desarrollador</option>
+                            <option value="DISENADOR"     {% if postulacion.vacante == 'DISENADOR'     %}selected{% endif %}>Diseñador</option>
+                        </select>
+                        {% if user.is_staff %}
+                            <input type="hidden" name="vacante" value="{{ postulacion.vacante }}">
+                        {% endif %}
+                        <br>
 
-    <b>Candidato:</b>
-    <p class="form-control-plaintext fw-bold">{{ postulacion.candidato.nombre_completo }}</p>
+                        <b>Pretensión salarial:</b> <br>
+                        <input placeholder="Ingrese su pretensión salarial" class="form-control" type="number"
+                               name="pretension_salarial" min="1" step="1"
+                               value="{{ postulacion.pretension_salarial }}"
+                               {% if user.is_staff %}readonly style="background:#e9ecef;"{% endif %}>
+                        <br>
 
-    <b>Vacante:</b>
-    <p class="form-control-plaintext">{{ postulacion.get_vacante_display }}</p>
+                        {% if user.is_staff %}
+                        <b>Estado de la Postulación:</b> <br>
+                        <select class="form-control" name="estado">
+                            <option value="PENDIENTE"       {% if postulacion.estado == 'PENDIENTE'       %}selected{% endif %}>Pendiente</option>
+                            <option value="PRESELECCIONADO" {% if postulacion.estado == 'PRESELECCIONADO' %}selected{% endif %}>Preseleccionado</option>
+                            <option value="RECHAZADO"       {% if postulacion.estado == 'RECHAZADO'       %}selected{% endif %}>Rechazado</option>
+                        </select>
+                        <br>
+                        {% endif %}
 
-    <b>Fecha de Postulación:</b>
-    <p class="form-control-plaintext">{{ postulacion.fecha_postulacion|date:"d/m/Y" }}</p>
+                        <b>Currículum Vitae (PDF):</b>
+                        <input type="file" name="cv_pdf" id="cv_pdf"
+                            {% if postulacion.cv_pdf %}
+                            data-initial-preview="<iframe src='{{ postulacion.cv_pdf.url }}' width='100%' height='200px' style='border:none;'></iframe>"
+                            data-initial-preview-config='[{"caption": "{{ postulacion.cv_pdf.name|cut:"cvs_postulaciones/" }}", "showDelete": false, "width": "400px"}]'
+                            {% endif %}
+                        >
+                        <span id="error_cv_pdf" class="text-danger small d-block"></span>
+                        <br>
 
+<<<<<<< HEAD
     <b>Pretensión Salarial:</b>
     <p class="form-control-plaintext">${{ postulacion.pretension_salarial }}</p>
 
@@ -117,12 +142,29 @@ $(document).ready(function() {
 
     // Método: tamaño máximo de archivo (patrón de referencia)
 =======
+=======
+                        <button class="btn btn-success" type="submit">
+                            <i class="fas fa-save me-1"></i> Guardar
+                        </button>
+                        <a href="/listadoPostulaciones/" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i> Cancelar
+                        </a>
+                    </form>
+                    <br>
+                </div>
+            </div>
+        </div>
 
-    {% if not user.is_staff %}
-    // ---------------------------------------------------
-    // Validación solo para el candidato
-    // ---------------------------------------------------
+<script>
+    $(document).ready(function() {
+>>>>>>> 9336c3e (validacion de edad minima 18 anios en registro y edicion de candidato)
 
+        // Método: tamaño máximo de archivo
+        jQuery.validator.addMethod('filesize', function(value, element, param) {
+            return this.optional(element) || (element.files[0].size <= param);
+        });
+
+<<<<<<< HEAD
     // Método: solo números
     jQuery.validator.addMethod("numbersonly", function(value, element) {
         return this.optional(element) || /^[0-9]+(\.[0-9]+)?$/.test(value);
@@ -195,16 +237,66 @@ $(document).ready(function() {
             }
         }
     });
+=======
+        $("#form_editar_postulacion").validate({
+            errorElement: "span",
+            errorClass: "text-danger small",
+            highlight: function(element) {
+                $(element).addClass("is-invalid").removeClass("is-valid");
+            },
+            unhighlight: function(element) {
+                $(element).removeClass("is-invalid");
+            },
+            errorPlacement: function(error, element) {
+                if (element.attr("name") === "cv_pdf") {
+                    $("#error_cv_pdf").html(error);
+                } else {
+                    error.insertAfter(element);
+                }
+            },
+            rules: {
+                {% if not user.is_staff %}
+                vacante: { required: true },
+                pretension_salarial: {
+                    required: true,
+                    number: true,
+                    min: 1,
+                    max: 999999
+                },
+                cv_pdf: { filesize: 5242880 },
+                {% else %}
+                estado: { required: true },
+                {% endif %}
+            },
+            messages: {
+                {% if not user.is_staff %}
+                vacante: { required: "Por favor, seleccione la vacante a la que aplica" },
+                pretension_salarial: {
+                    required: "Por favor, ingrese su pretensión salarial",
+                    number: "Por favor, ingrese solo números",
+                    min: "La pretensión salarial debe ser mayor a 0",
+                    max: "La pretensión salarial no puede exceder $999,999"
+                },
+                cv_pdf: { filesize: "El CV no puede superar 5 MB" },
+                {% else %}
+                estado: { required: "Debe seleccionar un estado" },
+                {% endif %}
+            }
+        });
+>>>>>>> 9336c3e (validacion de edad minima 18 anios en registro y edicion de candidato)
 
-    $("#cv_pdf").fileinput({
-        language: "es",
-        allowedFileExtensions: ["pdf"],
-        showCaption: false,
-        dropZoneEnabled: true,
-        showClose: false,
-    });
-    $(".fileinput-upload").hide();
+        $("#cv_pdf").fileinput({
+            language: "es",
+            allowedFileExtensions: ["pdf"],
+            showCaption: false,
+            dropZoneEnabled: {% if not user.is_staff %}true{% else %}false{% endif %},
+            showBrowse: {% if not user.is_staff %}true{% else %}false{% endif %},
+            showRemove: {% if not user.is_staff %}true{% else %}false{% endif %},
+            showClose: false,
+        });
+        $(".fileinput-upload").hide();
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     // Cuando fileinput detecta error (extensión o tamaño), disparar revalidación
     $("#cv_pdf").on("fileinvalid fileerror", function() {
@@ -247,6 +339,17 @@ $(document).ready(function() {
 
 >>>>>>> 59c8842 (corregir acciones en postulaciones y restringir edicion segun rol)
 });
+=======
+        {% if not user.is_staff %}
+        $("#cv_pdf").on("fileinvalid fileerror", function() {
+            $("#form_editar_postulacion").validate().element("#cv_pdf");
+        });
+        $("#cv_pdf").on("fileloaded", function() {
+            $("#error_cv_pdf").empty();
+        });
+        {% endif %}
+    });
+>>>>>>> 9336c3e (validacion de edad minima 18 anios en registro y edicion de candidato)
 </script>
 
 {% endblock %}

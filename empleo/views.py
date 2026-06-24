@@ -42,6 +42,7 @@ def cerrarSesion(request):
     return redirect('/login/')
 
 def nuevoCandidato(request):
+<<<<<<< HEAD
     from datetime import date
     hoy = date.today()
     # La fecha máxima seleccionable es exactamente 18 años atrás
@@ -51,30 +52,54 @@ def nuevoCandidato(request):
         # Caso bisiesto: 29-feb no existe en año no bisiesto
         max_fecha = hoy.replace(year=hoy.year - 18, day=28).strftime('%Y-%m-%d')
     return render(request, 'registrar_candidato.html', {'hoy': max_fecha})
+=======
+    return render(request, 'registrar_candidato.html')
+>>>>>>> 9336c3e (validacion de edad minima 18 anios en registro y edicion de candidato)
 
 def guardarCandidato(request):
     # Capturando valores via método POST con .get() para evitar KeyError
-    nombreCompletoNuevoCandidato = request.POST.get("nombre_completo", "").strip()
-    fechaNacimientoNuevoCandidato = request.POST.get("fecha_nacimiento", "")
-    generoNuevoCandidato = request.POST.get("genero", "")
-    nivelEstudiosNuevoCandidato = request.POST.get("nivel_estudios", "")
-    disponibleViajarNuevoCandidato = True if request.POST.get("disponible_viajar") else False
-    usernameNuevoCandidato = request.POST.get("username", "").strip()
-    passwordNuevoCandidato = request.POST.get("password", "")
-    emailNuevoCandidato = request.POST.get("email", "").strip()
+    nombreCompletoNuevoCandidato     = request.POST.get("nombre_completo", "").strip()
+    fechaNacimientoNuevoCandidato    = request.POST.get("fecha_nacimiento", "")
+    generoNuevoCandidato             = request.POST.get("genero", "")
+    nivelEstudiosNuevoCandidato      = request.POST.get("nivel_estudios", "")
+    disponibleViajarNuevoCandidato   = True if request.POST.get("disponible_viajar") else False
+    usernameNuevoCandidato           = request.POST.get("username", "").strip()
+    passwordNuevoCandidato           = request.POST.get("password", "")
+    emailNuevoCandidato              = request.POST.get("email", "").strip()
 
-    # Validación de campos obligatorios en el servidor
+    # Contexto para repoblar el formulario si hay errores
+    contexto = {
+        'nombre_completo':   nombreCompletoNuevoCandidato,
+        'fecha_nacimiento':  fechaNacimientoNuevoCandidato,
+        'genero':            generoNuevoCandidato,
+        'nivel_estudios':    nivelEstudiosNuevoCandidato,
+        'disponible_viajar': disponibleViajarNuevoCandidato,
+        'username':          usernameNuevoCandidato,
+        'email':             emailNuevoCandidato,
+    }
+
+    def error(msg):
+        messages.error(request, msg)
+        return render(request, 'registrar_candidato.html', contexto)
+
+    # Validación de campos obligatorios
     if not nombreCompletoNuevoCandidato:
-        messages.error(request, 'El nombre completo es obligatorio')
-        return redirect('/nuevoCandidato/')
+        return error('El nombre completo es obligatorio')
     if not fechaNacimientoNuevoCandidato:
+<<<<<<< HEAD
         messages.error(request, 'La fecha de nacimiento es obligatoria')
         return redirect('/nuevoCandidato/')
     # Validar fecha de nacimiento
     from datetime import date
+=======
+        return error('La fecha de nacimiento es obligatoria')
+
+    # Validar fecha de nacimiento
+    from datetime import date, datetime
+>>>>>>> 9336c3e (validacion de edad minima 18 anios en registro y edicion de candidato)
     try:
-        from datetime import datetime
         fecha_parsed = datetime.strptime(fechaNacimientoNuevoCandidato, '%Y-%m-%d').date()
+<<<<<<< HEAD
         if fecha_parsed >= date.today():
             messages.error(request, 'La fecha de nacimiento no puede ser hoy ni una fecha futura')
             return redirect('/nuevoCandidato/')
@@ -85,29 +110,33 @@ def guardarCandidato(request):
         if edad < 18:
             messages.error(request, 'El candidato debe tener al menos 18 años de edad')
             return redirect('/nuevoCandidato/')
+=======
+        hoy = date.today()
+        if fecha_parsed >= hoy:
+            return error('La fecha de nacimiento no puede ser hoy ni una fecha futura')
+        edad = hoy.year - fecha_parsed.year - ((hoy.month, hoy.day) < (fecha_parsed.month, fecha_parsed.day))
+        if edad < 18:
+            return error('El candidato debe tener al menos 18 años de edad')
+>>>>>>> 9336c3e (validacion de edad minima 18 anios en registro y edicion de candidato)
     except ValueError:
-        messages.error(request, 'La fecha de nacimiento no tiene un formato válido')
-        return redirect('/nuevoCandidato/')
+        return error('La fecha de nacimiento no tiene un formato válido')
+
     if not generoNuevoCandidato:
-        messages.error(request, 'Debe seleccionar un género')
-        return redirect('/nuevoCandidato/')
+        return error('Debe seleccionar un género')
     if not nivelEstudiosNuevoCandidato:
-        messages.error(request, 'Debe seleccionar el nivel de estudios')
-        return redirect('/nuevoCandidato/')
+        return error('Debe seleccionar el nivel de estudios')
     if not usernameNuevoCandidato:
-        messages.error(request, 'El nombre de usuario es obligatorio')
-        return redirect('/nuevoCandidato/')
+        return error('El nombre de usuario es obligatorio')
     if not passwordNuevoCandidato:
-        messages.error(request, 'La contraseña es obligatoria')
-        return redirect('/nuevoCandidato/')
+        return error('La contraseña es obligatoria')
     if not emailNuevoCandidato:
-        messages.error(request, 'El correo electrónico es obligatorio')
-        return redirect('/nuevoCandidato/')
+        return error('El correo electrónico es obligatorio')
 
     # Validar que el username no esté ya en uso
-    if User.objects.filter(username=usernameNuevoCandidato).exists():
+    if User.objects.filter(username__iexact=usernameNuevoCandidato).exists():
+        contexto['error_username'] = 'El nombre de usuario ya está en uso, elija otro'
         messages.error(request, 'El nombre de usuario ya está en uso, elija otro')
-        return redirect('/nuevoCandidato/')
+        return render(request, 'registrar_candidato.html', contexto)
 
     # Capturando el archivo de name="foto"
     fotoNuevoCandidato = request.FILES.get("foto")
@@ -117,17 +146,14 @@ def guardarCandidato(request):
         extensiones_permitidas = ['jpg', 'jpeg', 'png']
         extension = fotoNuevoCandidato.name.split('.')[-1].lower()
         if extension not in extensiones_permitidas:
-            messages.error(request, 'Solo se permiten imágenes en formato JPG, JPEG o PNG')
-            return redirect('/nuevoCandidato/')
+            return error('Solo se permiten imágenes en formato JPG, JPEG o PNG')
 
-    # Creando el usuario con contraseña encriptada automáticamente
+    # Crear el usuario y el candidato
     nuevoUsuario = User.objects.create_user(
         username=usernameNuevoCandidato,
         password=passwordNuevoCandidato,
         email=emailNuevoCandidato
     )
-
-    # Instanciar un objeto "Candidato" conectado a ese usuario
     Candidato.objects.create(
         usuario=nuevoUsuario,
         nombre_completo=nombreCompletoNuevoCandidato,
@@ -152,8 +178,12 @@ def listadoCandidatos(request):
 
 @login_required
 def editarCandidato(request, id):
-    from datetime import date
+    # El reclutador no puede editar perfiles de candidatos
+    if request.user.is_staff:
+        messages.error(request, 'No tienes permiso para editar perfiles de candidatos')
+        return redirect('/listadoCandidatos/')
     candidato = Candidato.objects.get(id=id)
+<<<<<<< HEAD
     hoy = date.today()
     try:
         max_fecha = hoy.replace(year=hoy.year - 18).strftime('%Y-%m-%d')
@@ -163,9 +193,16 @@ def editarCandidato(request, id):
         'candidato': candidato,
         'hoy': max_fecha
     })
+=======
+    return render(request, 'candidato_editar.html', {'candidato': candidato})
+>>>>>>> 9336c3e (validacion de edad minima 18 anios en registro y edicion de candidato)
 
 @login_required
 def actualizarCandidato(request, id):
+    # El reclutador no puede editar perfiles de candidatos
+    if request.user.is_staff:
+        messages.error(request, 'No tienes permiso para editar perfiles de candidatos')
+        return redirect('/listadoCandidatos/')
     candidato = Candidato.objects.get(id=id)
 
     # Capturando con .get() para evitar KeyError si algún campo no llega
@@ -189,9 +226,13 @@ def actualizarCandidato(request, id):
             messages.error(request, 'La fecha de nacimiento no puede ser hoy ni una fecha futura')
             return redirect('/editarCandidato/' + str(id) + '/')
         hoy = date.today()
+<<<<<<< HEAD
         edad = hoy.year - fecha_parsed.year - (
             (hoy.month, hoy.day) < (fecha_parsed.month, fecha_parsed.day)
         )
+=======
+        edad = hoy.year - fecha_parsed.year - ((hoy.month, hoy.day) < (fecha_parsed.month, fecha_parsed.day))
+>>>>>>> 9336c3e (validacion de edad minima 18 anios en registro y edicion de candidato)
         if edad < 18:
             messages.error(request, 'El candidato debe tener al menos 18 años de edad')
             return redirect('/editarCandidato/' + str(id) + '/')
@@ -302,8 +343,14 @@ def listadoPostulaciones(request):
 @login_required
 def editarPostulacion(request, id):
     postulacion = Postulacion.objects.get(id=id)
-    candidatos = Candidato.objects.all()
-    return render(request, 'postulacion_editar.html', {'postulacion': postulacion, 'candidatos': candidatos})
+
+    # Candidato: solo puede editar si el estado es PENDIENTE
+    if not request.user.is_staff and postulacion.estado != 'PENDIENTE':
+        messages.error(request, 'No puedes editar esta postulación porque ya fue ' +
+                       ('preseleccionada' if postulacion.estado == 'PRESELECCIONADO' else 'rechazada'))
+        return redirect('/listadoPostulaciones/')
+
+    return render(request, 'postulacion_editar.html', {'postulacion': postulacion})
 
 @login_required
 def actualizarPostulacion(request, id):
@@ -319,6 +366,12 @@ def actualizarPostulacion(request, id):
         postulacion.estado = estado
         postulacion.save()
         messages.success(request, 'Estado de la postulación actualizado exitosamente')
+        return redirect('/listadoPostulaciones/')
+
+    # ── CANDIDATO: solo puede editar si está en PENDIENTE ────────────────────
+    if postulacion.estado != 'PENDIENTE':
+        messages.error(request, 'No puedes editar esta postulación porque ya fue ' +
+                       ('preseleccionada' if postulacion.estado == 'PRESELECCIONADO' else 'rechazada'))
         return redirect('/listadoPostulaciones/')
 
     # ── CANDIDATO: puede editar vacante, salario y CV ─────────────────────────
@@ -394,17 +447,40 @@ def verPDF(request, id):
 
 @login_required
 def reporteVacantes(request):
-    # Agrupamos las postulaciones por vacante, contando cuántas hay
-    # y calculando el promedio de pretensión salarial de cada una
+    from django.db.models import Min, Max
+    # Agrupamos las postulaciones por vacante con todas las métricas
     reporte = Postulacion.objects.values('vacante').annotate(
         total_postulaciones=Count('id'),
-        promedio_salario=Avg('pretension_salarial')
+        promedio_salario=Avg('pretension_salarial'),
+        salario_minimo=Min('pretension_salarial'),
+        salario_maximo=Max('pretension_salarial'),
     ).order_by('-total_postulaciones')
 
     # Total general de postulaciones
     total_general = Postulacion.objects.count()
 
+    # Preparar listas para los gráficos (JSON-safe)
+    labels        = []
+    totales       = []
+    promedios     = []
+    minimos       = []
+    maximos       = []
+
+    nombres = {'DESARROLLADOR': 'Desarrollador', 'DISENADOR': 'Diseñador'}
+    for r in reporte:
+        labels.append(nombres.get(r['vacante'], r['vacante']))
+        totales.append(r['total_postulaciones'])
+        promedios.append(float(r['promedio_salario']) if r['promedio_salario'] else 0)
+        minimos.append(float(r['salario_minimo'])  if r['salario_minimo']  else 0)
+        maximos.append(float(r['salario_maximo'])  if r['salario_maximo']  else 0)
+
+    import json
     return render(request, 'reporte_vacantes.html', {
-        'reporte': reporte,
-        'total_general': total_general
+        'reporte':        reporte,
+        'total_general':  total_general,
+        'chart_labels':   json.dumps(labels),
+        'chart_totales':  json.dumps(totales),
+        'chart_promedios':json.dumps(promedios),
+        'chart_minimos':  json.dumps(minimos),
+        'chart_maximos':  json.dumps(maximos),
     })

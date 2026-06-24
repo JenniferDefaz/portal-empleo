@@ -9,46 +9,67 @@
                     <hr>
                     <form enctype="multipart/form-data" id="form_nuevo_candidato" action="/guardarCandidato/" method="post">
                         {% csrf_token %}
+
                         <b>Nombre completo:</b> <br>
-                        <input placeholder="Ingrese su nombre completo" class="form-control" type="text" name="nombre_completo">
+                        <input placeholder="Ingrese su nombre completo" class="form-control" type="text"
+                               name="nombre_completo" value="{{ nombre_completo }}">
                         <br>
+
                         <b>Fecha de nacimiento:</b> <br>
+<<<<<<< HEAD
                         <input class="form-control" type="date" name="fecha_nacimiento" 
                                id="fecha_nacimiento"
                                max="{{ hoy }}">
+=======
+                        <input class="form-control" type="date" name="fecha_nacimiento"
+                               id="fecha_nacimiento" value="{{ fecha_nacimiento }}">
+>>>>>>> 9336c3e (validacion de edad minima 18 anios en registro y edicion de candidato)
                         <span id="error_fecha_nacimiento" class="text-danger small"></span>
                         <br>
+
                         <b>Género:</b> <br>
-                        <label><input type="radio" name="genero" value="M"> Masculino</label>
-                        <label class="ms-3"><input type="radio" name="genero" value="F"> Femenino</label>
-                        <label class="ms-3"><input type="radio" name="genero" value="O"> Otro</label>
+                        <div id="grupo_genero">
+                            <label><input type="radio" name="genero" value="M" {% if genero == 'M' %}checked{% endif %}> Masculino</label>
+                            <label class="ms-3"><input type="radio" name="genero" value="F" {% if genero == 'F' %}checked{% endif %}> Femenino</label>
+                            <label class="ms-3"><input type="radio" name="genero" value="O" {% if genero == 'O' %}checked{% endif %}> Otro</label>
+                        </div>
                         <br>
-                        <br>
+
                         <b>Nivel de estudios:</b> <br>
                         <select class="form-control" name="nivel_estudios">
                             <option value="">Seleccione...</option>
-                            <option value="GRADO">Grado</option>
-                            <option value="MASTER">Máster</option>
-                            <option value="DOCTORADO">Doctorado</option>
+                            <option value="GRADO"      {% if nivel_estudios == 'GRADO'      %}selected{% endif %}>Grado</option>
+                            <option value="MASTER"     {% if nivel_estudios == 'MASTER'     %}selected{% endif %}>Máster</option>
+                            <option value="DOCTORADO"  {% if nivel_estudios == 'DOCTORADO'  %}selected{% endif %}>Doctorado</option>
                         </select>
                         <br>
+
                         <b>Disponibilidad para viajar o mudarse:</b> <br>
-                        <label><input type="checkbox" name="disponible_viajar"> Sí, estoy disponible</label>
-                        <br>
-                        <br>
+                        <label><input type="checkbox" name="disponible_viajar" {% if disponible_viajar %}checked{% endif %}> Sí, estoy disponible</label>
+                        <br><br>
+
                         <b>Foto de perfil:</b>
                         <input type="file" name="foto" id="foto">
-                        <br>
-                        <br>
+                        <br><br>
+
                         <b>Usuario (para iniciar sesión):</b> <br>
-                        <input placeholder="Ingrese un nombre de usuario" class="form-control" type="text" name="username">
+                        <input placeholder="Ingrese un nombre de usuario" class="form-control" type="text"
+                               name="username" value="{{ username }}"
+                               {% if error_username %}style="border-color:#dc3545;"{% endif %}>
+                        {% if error_username %}
+                            <span class="text-danger small">{{ error_username }}</span>
+                        {% endif %}
                         <br>
+
                         <b>Correo electrónico:</b> <br>
-                        <input placeholder="Ingrese su correo" class="form-control" type="email" name="email">
+                        <input placeholder="Ingrese su correo" class="form-control" type="email"
+                               name="email" value="{{ email }}">
                         <br>
+
                         <b>Contraseña:</b> <br>
                         <input placeholder="Ingrese una contraseña" class="form-control" type="password" name="password">
                         <br>
+
                         <button class="btn btn-success" type="submit">
                             <i class="fas fa-save me-1"></i> Guardar
                         </button>
@@ -56,12 +77,14 @@
                             <i class="fas fa-times me-1"></i> Cancelar
                         </a>
                     </form>
-                <br>
+                    <br>
+                </div>
             </div>
         </div>
-    </div>
+
 <script>
     $(document).ready(function() {
+<<<<<<< HEAD
         // Método: solo letras y espacios (patrón de referencia)
         jQuery.validator.addMethod("letras", function(value, element) {
             return this.optional(element) || /^[A-Za-zÁÉÍÑÓÚáéíñóú\s]*$/.test(value);
@@ -87,10 +110,42 @@
         jQuery.validator.addMethod('filesize', function(value, element, param) {
             return this.optional(element) || (element.files[0].size <= param);
         });
+=======
+
+        // Solo letras y espacios (tildes y ñ)
+        jQuery.validator.addMethod("soloLetras", function(value, element) {
+            return this.optional(element) || /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(value);
+        }, "Este campo solo acepta letras y espacios");
+>>>>>>> 9336c3e (validacion de edad minima 18 anios en registro y edicion de candidato)
+
+        // Fecha: anterior a hoy Y al menos 18 años
+        jQuery.validator.addMethod("fechaValida", function(value, element) {
+            if (!value) return true;
+            var hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            var f = new Date(value + 'T00:00:00');
+            if (f >= hoy) return false;
+            var edad = hoy.getFullYear() - f.getFullYear();
+            var m = hoy.getMonth() - f.getMonth();
+            if (m < 0 || (m === 0 && hoy.getDate() < f.getDate())) edad--;
+            return edad >= 18;
+        }, "Debe tener al menos 18 años de edad");
+
+        // Tamaño máximo de archivo
+        jQuery.validator.addMethod('filesize', function(value, element, param) {
+            return this.optional(element) || (element.files[0].size <= param);
+        });
 
         $("#form_nuevo_candidato").validate({
             errorElement: "span",
             errorClass: "text-danger small",
+<<<<<<< HEAD
+=======
+            ignore: [],
+            onfocusout: function(element) {
+                this.element(element);
+            },
+>>>>>>> 9336c3e (validacion de edad minima 18 anios en registro y edicion de candidato)
             highlight: function(element) {
                 $(element).addClass("is-invalid").removeClass("is-valid");
             },
@@ -98,6 +153,7 @@
                 $(element).removeClass("is-invalid");
             },
             errorPlacement: function(error, element) {
+<<<<<<< HEAD
                     if (element.attr("type") === "radio" || element.attr("type") === "checkbox") {
                         error.insertAfter(element.closest("div, label").last());
                     } else if (element.attr("name") === "fecha_nacimiento") {
@@ -139,13 +195,33 @@
                 },
                 foto: {
                     filesize: 2097152  // 2MB máximo
+=======
+                if (element.attr("type") === "radio") {
+                    error.insertAfter($("#grupo_genero"));
+                } else if (element.attr("name") === "fecha_nacimiento") {
+                    $("#error_fecha_nacimiento").empty();
+                    error.appendTo("#error_fecha_nacimiento");
+                } else {
+                    error.insertAfter(element);
+>>>>>>> 9336c3e (validacion de edad minima 18 anios en registro y edicion de candidato)
                 }
+            },
+            rules: {
+                nombre_completo: { required: true, minlength: 3, maxlength: 150, soloLetras: true },
+                fecha_nacimiento: { required: true, fechaValida: true },
+                genero:           { required: true },
+                nivel_estudios:   { required: true },
+                username:         { required: true, minlength: 3, maxlength: 50 },
+                email:            { required: true, email: true },
+                password:         { required: true, minlength: 6 },
+                foto:             { filesize: 2097152 }
             },
             messages: {
                 nombre_completo: {
-                    required: "Por favor, ingrese su nombre completo",
+                    required:  "Por favor, ingrese su nombre completo",
                     minlength: "El nombre debe tener al menos 3 caracteres",
                     maxlength: "El nombre no puede exceder 150 caracteres",
+<<<<<<< HEAD
                     letras: "El nombre solo puede contener letras y espacios"
                 },
                 fecha_nacimiento: {
@@ -157,23 +233,36 @@
                 },
                 nivel_estudios: {
                     required: "Por favor, seleccione su nivel de estudios"
+=======
+                    soloLetras:"El nombre solo puede contener letras y espacios"
                 },
+                fecha_nacimiento: {
+                    required:    "Por favor, seleccione su fecha de nacimiento",
+                    fechaValida: "Debe tener al menos 18 años de edad"
+>>>>>>> 9336c3e (validacion de edad minima 18 anios en registro y edicion de candidato)
+                },
+                genero:        { required: "Por favor, seleccione su género" },
+                nivel_estudios:{ required: "Por favor, seleccione su nivel de estudios" },
                 username: {
-                    required: "Por favor, ingrese un nombre de usuario",
+                    required:  "Por favor, ingrese un nombre de usuario",
                     minlength: "El usuario debe tener al menos 3 caracteres",
                     maxlength: "El usuario no puede exceder 50 caracteres"
                 },
                 email: {
                     required: "Por favor, ingrese su correo electrónico",
-                    email: "Ingrese un correo electrónico válido"
+                    email:    "Ingrese un correo electrónico válido"
                 },
                 password: {
-                    required: "Por favor, ingrese una contraseña",
+                    required:  "Por favor, ingrese una contraseña",
                     minlength: "La contraseña debe tener al menos 6 caracteres"
                 },
+<<<<<<< HEAD
                 foto: {
                     filesize: "La foto no puede superar 2MB"
                 }
+=======
+                foto: { filesize: "La foto no puede superar 2 MB" }
+>>>>>>> 9336c3e (validacion de edad minima 18 anios en registro y edicion de candidato)
             }
         });
 

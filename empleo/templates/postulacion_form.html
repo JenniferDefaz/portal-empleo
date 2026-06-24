@@ -9,6 +9,7 @@
                     <hr>
                     <form enctype="multipart/form-data" id="form_nueva_postulacion" action="/guardarPostulacion/" method="post">
                         {% csrf_token %}
+
                         <b>Vacante a la que aplica:</b> <br>
                         <select class="form-control" name="vacante">
                             <option value="">Seleccione...</option>
@@ -16,16 +17,29 @@
                             <option value="DISENADOR">Diseñador</option>
                         </select>
                         <br>
+
                         <b>Pretensión salarial:</b> <br>
-                        <input placeholder="Ingrese su pretensión salarial" class="form-control" type="number" name="pretension_salarial" min="1" step="1">
+                        <input placeholder="Ingrese su pretensión salarial" class="form-control"
+                               type="number" name="pretension_salarial" min="1" step="1">
                         <br>
+
                         <b>Currículum Vitae (PDF):</b>
+<<<<<<< HEAD
                         <input type="file" name="cv_pdf" id="cv_pdf" required>
                         <span id="error_cv_pdf" class="text-danger small d-block"></span>
                         <br>
+=======
+                        <input type="file" name="cv_pdf" id="cv_pdf">
+                        <span id="error_cv_pdf" class="text-danger small d-block"></span>
+>>>>>>> 9336c3e (validacion de edad minima 18 anios en registro y edicion de candidato)
                         <br>
+
                         <button class="btn btn-success" type="submit">
+<<<<<<< HEAD
                             <i class="fas fa-paper-plane me-1"></i> Enviar
+=======
+                            <i class="fas fa-save me-1"></i> Guardar
+>>>>>>> 9336c3e (validacion de edad minima 18 anios en registro y edicion de candidato)
                         </button>
                         <a href="/listadoPostulaciones/" class="btn btn-secondary">
                             <i class="fas fa-times me-1"></i> Cancelar
@@ -35,6 +49,7 @@
                 </div>
             </div>
         </div>
+<<<<<<< HEAD
     <script>
         $(document).ready(function() {
             // Método: solo números (patrón de referencia)
@@ -120,6 +135,68 @@
             $("#cv_pdf").on("fileloaded", function() {
                 $("#error_cv_pdf").empty();
             });
+=======
+
+<script>
+    $(document).ready(function() {
+
+        // Tamaño máximo de archivo
+        jQuery.validator.addMethod('filesize', function(value, element, param) {
+            return this.optional(element) || (element.files[0].size <= param);
+>>>>>>> 9336c3e (validacion de edad minima 18 anios en registro y edicion de candidato)
         });
-    </script>
+
+        $("#form_nueva_postulacion").validate({
+            errorElement: "span",
+            errorClass: "text-danger small",
+            highlight: function(element) {
+                $(element).addClass("is-invalid").removeClass("is-valid");
+            },
+            unhighlight: function(element) {
+                $(element).removeClass("is-invalid");
+            },
+            errorPlacement: function(error, element) {
+                if (element.attr("name") === "cv_pdf") {
+                    $("#error_cv_pdf").html(error);
+                } else {
+                    error.insertAfter(element);
+                }
+            },
+            rules: {
+                vacante:            { required: true },
+                pretension_salarial:{ required: true, number: true, min: 1, max: 999999 },
+                cv_pdf:             { required: true, filesize: 5242880 }
+            },
+            messages: {
+                vacante: { required: "Por favor, seleccione la vacante a la que aplica" },
+                pretension_salarial: {
+                    required: "Por favor, ingrese su pretensión salarial",
+                    number:   "Por favor, ingrese solo números",
+                    min:      "La pretensión salarial debe ser mayor a 0",
+                    max:      "La pretensión salarial no puede exceder $999,999"
+                },
+                cv_pdf: {
+                    required: "Debe adjuntar su Currículum Vitae en PDF",
+                    filesize: "El CV no puede superar 5 MB"
+                }
+            }
+        });
+
+        $("#cv_pdf").fileinput({
+            language: "es",
+            allowedFileExtensions: ["pdf"],
+            showCaption: false,
+            dropZoneEnabled: true,
+            showClose: false,
+        });
+        $(".fileinput-upload").hide();
+
+        $("#cv_pdf").on("fileinvalid fileerror", function() {
+            $("#form_nueva_postulacion").validate().element("#cv_pdf");
+        });
+        $("#cv_pdf").on("fileloaded", function() {
+            $("#error_cv_pdf").empty();
+        });
+    });
+</script>
 {% endblock %}
