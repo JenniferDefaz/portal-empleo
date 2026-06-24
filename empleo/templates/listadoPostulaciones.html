@@ -66,6 +66,7 @@
                                 {% endif %}
                             </td>
                             <td class="text-center">
+<<<<<<< HEAD
                                 <a href="/editarPostulacion/{{ p.id }}/" class="btn btn-warning btn-sm" title="Editar Postulación">
                                     <i class="fas fa-edit"></i>
                                 </a>
@@ -82,6 +83,23 @@
                                 <a href="/editarPostulacion/{{ p.id }}/" class="btn btn-outline-warning btn-sm" title="Editar Postulación">
                                     <i class="fas fa-edit"></i>
                                 </a>
+=======
+                                {% if not user.is_staff %}
+                                    <!-- Candidato: puede editar su propia postulación -->
+                                    <a href="/editarPostulacion/{{ p.id }}/" class="btn btn-warning btn-sm" title="Editar Postulación">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                {% else %}
+                                    <!-- Reclutador: solo cambia el estado y puede eliminar -->
+                                    <a href="/editarPostulacion/{{ p.id }}/" class="btn btn-outline-primary btn-sm" title="Cambiar Estado">
+                                        <i class="fas fa-tasks"></i>
+                                    </a>
+                                    <a href="/eliminarPostulacion/{{ p.id }}/"
+                                        class="btn btn-danger btn-sm" title="Eliminar Postulación"
+                                        onclick="confirmarEliminacion(event, this.href)">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+>>>>>>> 59c8842 (corregir acciones en postulaciones y restringir edicion segun rol)
                                 {% endif %}
                             </td>
                         </tr>

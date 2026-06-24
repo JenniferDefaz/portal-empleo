@@ -309,11 +309,23 @@ def editarPostulacion(request, id):
 def actualizarPostulacion(request, id):
     postulacion = Postulacion.objects.get(id=id)
 
-    # Capturando con .get() para evitar KeyError
+    # ── RECLUTADOR: solo puede cambiar el estado ──────────────────────────────
+    if request.user.is_staff:
+        estado = request.POST.get("estado", "").strip()
+        estados_validos = ['PENDIENTE', 'PRESELECCIONADO', 'RECHAZADO']
+        if not estado or estado not in estados_validos:
+            messages.error(request, 'Debe seleccionar un estado válido')
+            return redirect('/editarPostulacion/' + str(id) + '/')
+        postulacion.estado = estado
+        postulacion.save()
+        messages.success(request, 'Estado de la postulación actualizado exitosamente')
+        return redirect('/listadoPostulaciones/')
+
+    # ── CANDIDATO: puede editar vacante, salario y CV ─────────────────────────
     vacante            = request.POST.get("vacante", "")
     pretensionSalarial = request.POST.get("pretension_salarial", "").strip()
 
-    # Validación de campos obligatorios en el servidor
+    # Validación de campos obligatorios
     if not vacante:
         messages.error(request, 'Debe seleccionar la vacante')
         return redirect('/editarPostulacion/' + str(id) + '/')
@@ -321,23 +333,35 @@ def actualizarPostulacion(request, id):
         messages.error(request, 'La pretensión salarial es obligatoria')
         return redirect('/editarPostulacion/' + str(id) + '/')
 
+    # Validar que la pretensión salarial sea un número positivo
+    try:
+        from decimal import Decimal, InvalidOperation
+        salario = Decimal(pretensionSalarial)
+        if salario <= 0 or salario > 999999:
+            messages.error(request, 'La pretensión salarial debe ser entre 1 y 999,999')
+            return redirect('/editarPostulacion/' + str(id) + '/')
+    except InvalidOperation:
+        messages.error(request, 'La pretensión salarial no tiene un formato válido')
+        return redirect('/editarPostulacion/' + str(id) + '/')
+
     postulacion.vacante             = vacante
     postulacion.pretension_salarial = pretensionSalarial
 
-    # Solo el reclutador puede cambiar el estado
-    if request.user.is_staff:
-        postulacion.estado = request.POST.get("estado", postulacion.estado)
-
-    # Solo se actualiza el PDF si el usuario subió uno nuevo
+    # Solo se actualiza el PDF si el candidato subió uno nuevo
     nuevoCv = request.FILES.get("cv_pdf")
     if nuevoCv:
-        # Validar extensión del CV en el servidor
+        # Validar extensión del CV
         extension = nuevoCv.name.split('.')[-1].lower()
         if extension != 'pdf':
             messages.error(request, 'El Currículum Vitae debe estar en formato PDF')
             return redirect('/editarPostulacion/' + str(id) + '/')
 
-        # Si ya existía un CV anterior, lo eliminamos del disco antes de reemplazarlo
+        # Validar tamaño (máx 5 MB)
+        if nuevoCv.size > 5 * 1024 * 1024:
+            messages.error(request, 'El CV no puede superar 5 MB')
+            return redirect('/editarPostulacion/' + str(id) + '/')
+
+        # Eliminar el CV anterior del disco
         if postulacion.cv_pdf:
             ruta_cv_anterior = postulacion.cv_pdf.path
             if os.path.isfile(ruta_cv_anterior):
