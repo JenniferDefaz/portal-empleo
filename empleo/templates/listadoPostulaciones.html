@@ -38,7 +38,7 @@
                             <td>{{ p.id }}</td>
                             <td>{{ p.candidato.nombre_completo }}</td>
                             <td>{{ p.get_vacante_display }}</td>
-                            <td>{{ p.fecha_postulacion }}</td>
+                            <td>{{ p.fecha_postulacion|date:"d/m/Y" }}</td>
                             <td>${{ p.pretension_salarial }}</td>
                             <td class="text-center">
                                 {% if p.estado == 'PRESELECCIONADO' %}

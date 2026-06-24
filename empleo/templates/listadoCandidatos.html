@@ -39,7 +39,7 @@
                         {% endif %}
                     </td>
                     <td>{{ c.nombre_completo }}</td>
-                    <td>{{ c.fecha_nacimiento }}</td>
+                    <td>{{ c.fecha_nacimiento|date:"d/m/Y" }}</td>
                     <td>{{ c.get_genero_display }}</td>
                     <td>{{ c.get_nivel_estudios_display }}</td>
                     <td class="text-center">
